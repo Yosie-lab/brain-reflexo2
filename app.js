@@ -91,14 +91,30 @@ class SoundEngine {
    */
   unlock() {
     if (!this.ctx) return;
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume().then(() => {
-        this._ensureReverb();
-        this._ensureCarbonated();
-      }).catch(e => console.warn('AudioContext resume failed:', e));
-    } else {
+
+    const _unlockAndPlayBeep = () => {
       this._ensureReverb();
       this._ensureCarbonated();
+      
+      // iOS Safari用のダミー音再生（無音の音を再生して出力を強制的に活性化）
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        gain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+        osc.start(0);
+        osc.stop(this.ctx.currentTime + 0.05);
+      } catch (err) {
+        console.warn("Dummy sound play failed:", err);
+      }
+    };
+
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(_unlockAndPlayBeep)
+        .catch(e => console.warn('AudioContext resume failed:', e));
+    } else {
+      _unlockAndPlayBeep();
     }
   }
 
@@ -1051,6 +1067,12 @@ class GameEngine {
       const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
+      if (this.running) {
+        this.sound.init();
+      }
+    });
+
+    window.addEventListener('touchend', () => {
       if (this.running) {
         this.sound.init();
       }
