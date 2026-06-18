@@ -1,0 +1,382 @@
+/* ============================================
+   Nebula Garden — style.css
+   目に優しい深宇宙カラーパレット
+   ============================================ */
+
+/* ---------- Google Fonts + リセット ---------- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep:       #060b18;
+  --bg-mid:        #0e0e2c;
+  --planet-warm:   #f0d9b0;
+  --planet-glow:   rgba(240, 200, 140, 0.35);
+  --planet-glow2:  rgba(240, 200, 140, 0.12);
+  --ui-text:       #d4c9b0;
+  --ui-text-soft:  rgba(212, 201, 176, 0.6);
+  --ui-border:     rgba(212, 201, 176, 0.1);
+  --ui-glass:      rgba(6, 11, 24, 0.78);
+  --cursor-ring:   rgba(240, 210, 160, 0.28);
+  --cursor-core:   rgba(240, 210, 160, 0.08);
+  --btn-bg:        rgba(240, 200, 140, 0.12);
+  --btn-hover:     rgba(240, 200, 140, 0.28);
+  --btn-border:    rgba(240, 200, 140, 0.4);
+  --font-serif:    'Noto Serif JP', serif;
+  --font-sans:     'Noto Sans JP', sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--ui-text);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body.game-active {
+  cursor: none;
+}
+
+/* ---------- キャンバス ---------- */
+#game-canvas {
+  display: block;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ---------- 引力カーソル ---------- */
+#gravity-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cursor-ring);
+  background: var(--cursor-core);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s linear, opacity 0.3s ease;
+  z-index: 9999;
+  backdrop-filter: blur(1px);
+  will-change: transform;
+  opacity: 0;
+}
+
+body.game-active #gravity-cursor {
+  opacity: 1;
+}
+
+#gravity-cursor-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(240, 210, 160, 0.7);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px 2px rgba(240, 200, 140, 0.5);
+}
+
+/* カーソルが引力発動中に少し広がる */
+#gravity-cursor.active {
+  border-color: rgba(240, 210, 160, 0.55);
+  background: rgba(240, 210, 160, 0.13);
+  box-shadow: 0 0 24px 6px rgba(240, 200, 140, 0.1);
+}
+
+/* ---------- HUD（右上パネル） ---------- */
+#hud {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  background: var(--ui-glass);
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  min-width: 250px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 3px 0;
+}
+
+.hud-row + .hud-row {
+  border-top: 1px solid var(--ui-border);
+  margin-top: 6px;
+  padding-top: 8px;
+}
+
+.hud-label {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 10px;
+  color: var(--ui-text-soft);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.hud-value {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--planet-warm);
+  text-shadow: 0 0 8px var(--planet-glow);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- オーバーレイ共通 ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(14,14,44,0.45) 0%, rgba(6,11,24,0.65) 100%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.6s ease;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- オーバーレイ コンテンツ ---------- */
+.overlay-content {
+  text-align: center;
+  padding: 40px 48px;
+  background: rgba(6, 11, 24, 0.6);
+  border: 1px solid var(--ui-border);
+  border-radius: 24px;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 60px rgba(240, 200, 140, 0.05),
+    0 8px 40px rgba(0,0,0,0.5);
+  max-width: 400px;
+  width: 90vw;
+  animation: content-appear 0.8s ease forwards;
+}
+
+@keyframes content-appear {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- スタート画面テキスト ---------- */
+.game-title {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(28px, 6vw, 40px);
+  color: var(--planet-warm);
+  letter-spacing: 0.12em;
+  text-shadow:
+    0 0 20px var(--planet-glow),
+    0 0 60px var(--planet-glow2);
+  margin-bottom: 4px;
+}
+
+.game-subtitle {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--ui-text-soft);
+  letter-spacing: 0.3em;
+  margin-bottom: 28px;
+}
+
+.game-desc {
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ui-text);
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.game-hint {
+  font-size: 11px;
+  color: var(--ui-text-soft);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  margin-bottom: 32px;
+  padding: 8px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 20px;
+  display: inline-block;
+}
+
+/* ---------- ボタン ---------- */
+.action-btn {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: var(--planet-warm);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 40px;
+  padding: 12px 40px;
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-btn:hover, .action-btn:focus {
+  background: var(--btn-hover);
+  box-shadow:
+    0 0 20px var(--planet-glow2),
+    0 0 40px rgba(240, 200, 140, 0.08);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* ---------- リザルト画面 ---------- */
+.result-label {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--ui-text-soft);
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+}
+
+#result-planet-visual {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #f5e8c8 0%, #e8c870 40%, #c8a040 100%);
+  box-shadow:
+    0 0 30px rgba(240, 200, 140, 0.6),
+    0 0 80px rgba(240, 200, 140, 0.2);
+  margin: 0 auto 24px;
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(240,200,140,0.5), 0 0 80px rgba(240,200,140,0.15); }
+  50%       { box-shadow: 0 0 50px rgba(240,200,140,0.8), 0 0 120px rgba(240,200,140,0.3); }
+}
+
+.result-score {
+  font-family: var(--font-serif);
+  margin-bottom: 8px;
+  color: var(--ui-text);
+  font-weight: 300;
+}
+
+.result-score span:first-child {
+  font-size: 40px;
+  color: var(--planet-warm);
+  text-shadow: 0 0 12px var(--planet-glow);
+}
+
+.result-unit {
+  font-size: 13px;
+  color: var(--ui-text-soft);
+}
+
+.result-time-text {
+  font-size: 11px;
+  color: var(--ui-text-soft);
+  font-weight: 300;
+  margin-bottom: 32px;
+}
+
+/* ---------- フィードバックテキスト ---------- */
+#feedback-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 150;
+}
+
+.feedback-text {
+  position: absolute;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 15px;
+  color: var(--planet-warm);
+  text-shadow: 0 0 10px var(--planet-glow);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: float-fade 2.2s ease-out forwards;
+}
+
+@keyframes float-fade {
+  0%   { opacity: 0; transform: translateY(0) scale(0.85); }
+  15%  { opacity: 1; transform: translateY(-8px) scale(1); }
+  80%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+}
+
+/* ---------- スクロールバー非表示 ---------- */
+::-webkit-scrollbar { display: none; }
+
+/* ---------- 操作パネル（左上） ---------- */
+.control-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+}
+
+.control-panel.hidden {
+  display: none;
+}
+
+.control-btn {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ui-text-soft);
+  background: var(--ui-glass);
+  border: 1px solid var(--ui-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer !important; /* カスタムカーソル無効化のため強制 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.control-btn:hover {
+  color: var(--planet-warm);
+  border-color: var(--btn-border);
+  background: var(--btn-hover);
+  box-shadow: 0 0 12px var(--planet-glow);
+}
+
