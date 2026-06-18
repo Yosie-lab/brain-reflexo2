@@ -76,9 +76,10 @@ body.game-active #gravity-cursor {
   top: 0; left: 0;
   width: 100%; height: 100%;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 225, 170, 0.45);
-  background: radial-gradient(circle, rgba(255, 220, 150, 0.03) 0%, rgba(255, 220, 150, 0) 70%);
-  box-shadow: 0 0 12px rgba(255, 210, 130, 0.22), inset 0 0 8px rgba(255, 210, 130, 0.08);
+  border: 3.2px solid rgba(129, 195, 215, 0.55); /* 脳リフレクソ水色系 (#81c3d7, 3.2px実線) */
+  background: radial-gradient(circle, rgba(129, 195, 215, 0.02) 0%, rgba(129, 195, 215, 0) 70%);
+  /* 外側に薄くて太い線(6.4px相当)を重ねるグロー効果をbox-shadowのspreadで再現 */
+  box-shadow: 0 0 0 1.6px rgba(129, 195, 215, 0.15), 0 0 10px rgba(129, 195, 215, 0.2);
   animation: pulse-wave 2.7s cubic-bezier(0.215, 0.610, 0.355, 1.000) infinite;
   transform-origin: center;
   pointer-events: none;
@@ -86,14 +87,14 @@ body.game-active #gravity-cursor {
 
 .wave:nth-child(2) {
   animation-delay: 0.9s; /* 2枚目の波紋を時間差で広げる */
-  border-color: rgba(200, 235, 255, 0.35);
-  box-shadow: 0 0 12px rgba(130, 210, 255, 0.18);
+  border-color: rgba(141, 169, 196, 0.45); /* 脳リフレクソ薄青系 (#8da9c4) */
+  box-shadow: 0 0 0 1.6px rgba(141, 169, 196, 0.12), 0 0 10px rgba(141, 169, 196, 0.15);
 }
 
 .wave:nth-child(3) {
   animation-delay: 1.8s; /* 3枚目の波紋を時間差で広げる */
-  border-color: rgba(240, 190, 255, 0.3);
-  box-shadow: 0 0 12px rgba(220, 130, 255, 0.15);
+  border-color: rgba(194, 175, 240, 0.35); /* 脳リフレクソ薄紫系 (#c2aff0) */
+  box-shadow: 0 0 0 1.6px rgba(194, 175, 240, 0.1), 0 0 10px rgba(194, 175, 240, 0.12);
 }
 
 @keyframes pulse-wave {
@@ -108,27 +109,26 @@ body.game-active #gravity-cursor {
   100% {
     transform: scale(2.8);
     opacity: 0;
-    filter: blur(1.5px); /* 広がるにつれて柔らかく消えていく */
+    filter: blur(1px); /* 広がるにつれて柔らかく消えていく */
   }
 }
 
 /* 引力発動中（小惑星を誘導している最中）は波動が加速し、より活性化する */
 #gravity-cursor.active .wave {
-  border-width: 2.2px;
-  border-color: rgba(255, 220, 150, 0.85);
-  background: radial-gradient(circle, rgba(255, 210, 120, 0.07) 0%, rgba(255, 210, 120, 0) 75%);
-  box-shadow: 0 0 20px rgba(255, 200, 100, 0.45), inset 0 0 12px rgba(255, 200, 100, 0.18);
+  border-width: 4px;
+  border-color: rgba(129, 195, 215, 0.85);
+  box-shadow: 0 0 0 2px rgba(129, 195, 215, 0.3), 0 0 14px rgba(129, 195, 215, 0.4);
   animation-duration: 1.5s;
 }
 #gravity-cursor.active .wave:nth-child(2) {
   animation-delay: 0.5s;
-  border-color: rgba(160, 230, 255, 0.75);
-  box-shadow: 0 0 20px rgba(100, 220, 255, 0.38);
+  border-color: rgba(141, 169, 196, 0.75);
+  box-shadow: 0 0 0 2px rgba(141, 169, 196, 0.25), 0 0 14px rgba(141, 169, 196, 0.3);
 }
 #gravity-cursor.active .wave:nth-child(3) {
   animation-delay: 1.0s;
-  border-color: rgba(235, 170, 255, 0.65);
-  box-shadow: 0 0 20px rgba(210, 120, 255, 0.3);
+  border-color: rgba(194, 175, 240, 0.65);
+  box-shadow: 0 0 0 2px rgba(194, 175, 240, 0.2), 0 0 14px rgba(194, 175, 240, 0.25);
 }
 
 /* ---------- HUD（右上パネル） ---------- */
