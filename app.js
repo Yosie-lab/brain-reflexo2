@@ -1161,6 +1161,12 @@ class GameEngine {
   _bindEvents() {
     window.addEventListener('resize', () => this._resize());
 
+    // 戻るボタン/スワイプバック防止ハック (popstateを利用して履歴内で留まらせる)
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', () => {
+      history.pushState(null, null, location.href);
+    });
+
     // iOSスワイプバック防止用のエッジガード（左右の透明な壁）のタッチイベントを完全に無効化
     const preventBack = e => {
       if (e.cancelable) {
@@ -1175,6 +1181,26 @@ class GameEngine {
         leftGuard.addEventListener(evtName, preventBack, { passive: false });
         rightGuard.addEventListener(evtName, preventBack, { passive: false });
       });
+    }
+
+    // 音声の同期的アンロック処理を各種ボタンのタップ/クリック時にフック
+    const startAudio = () => {
+      this.sound.init();
+    };
+    const startBtn = document.getElementById('start-btn');
+    const resumeBtn = document.getElementById('resume-save-btn');
+    const retryBtn = document.getElementById('retry-btn');
+    if (startBtn) {
+      startBtn.addEventListener('touchstart', startAudio, { passive: true });
+      startBtn.addEventListener('mousedown', startAudio);
+    }
+    if (resumeBtn) {
+      resumeBtn.addEventListener('touchstart', startAudio, { passive: true });
+      resumeBtn.addEventListener('mousedown', startAudio);
+    }
+    if (retryBtn) {
+      retryBtn.addEventListener('touchstart', startAudio, { passive: true });
+      retryBtn.addEventListener('mousedown', startAudio);
     }
 
     window.addEventListener('mousemove', e => {
@@ -1244,7 +1270,7 @@ class GameEngine {
   }
 
   _createCursorTrail(x, y) {
-    if (!this.gameStarted || this.paused) return;
+    if (!this.gameStarted || this.paused || x < -500 || y < -500) return;
     // 軌道上にパーティクルを発生させる（生成量をさらに3分の2：平均0.53個に削減）
     if (Math.random() < 0.53) {
       this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage, true));
@@ -1252,8 +1278,12 @@ class GameEngine {
   }
 
   _moveCursor(x, y) {
+    // 画面外や無効値の場合は処理しない
+    if (x < -500 || y < -500) return;
+    
     this.cursor.style.left = `${x}px`;
     this.cursor.style.top = `${y}px`;
+    this.cursor.style.opacity = '1'; // 実際に動かしたら表示する
 
     const near = this.asteroids.some(a => {
       const dx = a.x - x, dy = a.y - y;
@@ -1350,6 +1380,11 @@ class GameEngine {
     if (!this.gameStarted) {
       document.body.classList.remove('game-active');
     }
+
+    // ゲーム開始/初期化時はカーソルの表示と状態を完全にリセット
+    this.mouse = { x: -1000, y: -1000 };
+    this.cursor.classList.remove('moving', 'stopped', 'active');
+    this.cursor.style.opacity = '0'; // 画面をタッチして動かすまでは表示しない
   }
 
   _resetGame() {
