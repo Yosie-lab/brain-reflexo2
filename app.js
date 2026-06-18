@@ -988,8 +988,8 @@ class TrailParticle {
     this.gravity = 0.002 * scale;
     this.friction = 0.965;
     
-    // iPhoneでもはっきり視認できるサイズ
-    this.radius = rand(2.2, 4.8) * scale;
+    // 粒子をより小さく繊細に調整
+    this.radius = rand(0.8, 2.0) * scale;
     this.maxLife = rand(36, 58); // 寿命を少し長くして軌跡を美しく残す
     this.life = 0;
     this.alive = true;
