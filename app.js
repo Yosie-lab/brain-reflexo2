@@ -963,28 +963,56 @@ class AbsorbEffect {
 // class: TrailParticle（軌道の光の粒の波紋）
 // ============================================================
 class TrailParticle {
-  constructor(x, y, scale = 1.0, stage = 1) {
+  constructor(x, y, scale = 1.0, stage = 1, isMoving = true) {
     this.x = x;
     this.y = y;
     this.scale = scale;
-    const angle = rand(0, Math.PI * 2);
-    const speed = rand(0.08, 0.28) * scale;
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
     
-    // iPhoneでもはっきり視認できるサイズ（直径約8px〜16px）
-    this.radius = rand(4.2, 8.5) * scale;
-    this.maxLife = rand(30, 48); // 寿命を少し長くして軌跡を美しく残す
+    // 円周上のランダムな角度
+    const angle = rand(0, Math.PI * 2);
+    
+    // 波動円の範囲（波紋の広がりに同期するように初期配置距離を設定）
+    const startDist = (isMoving ? rand(8, 24) : rand(12, 42)) * scale;
+    
+    this.x += Math.cos(angle) * startDist;
+    this.y += Math.sin(angle) * startDist;
+    
+    // 速度：外側に向かう速度 ＋ 円周を回るような接線（回転）方向の速度を加えて美しく渦巻くようにする
+    const normalSpeed = rand(0.12, 0.42) * scale;
+    const tangentSpeed = rand(-0.48, 0.48) * scale;
+    
+    this.vx = Math.cos(angle) * normalSpeed - Math.sin(angle) * tangentSpeed;
+    this.vy = Math.sin(angle) * normalSpeed + Math.cos(angle) * tangentSpeed;
+    
+    // 宇宙のチリのようにわずかに漂う摩擦と極小重力
+    this.gravity = 0.002 * scale;
+    this.friction = 0.965;
+    
+    // iPhoneでもはっきり視認できるサイズ
+    this.radius = rand(2.2, 4.8) * scale;
+    this.maxLife = rand(36, 58); // 寿命を少し長くして軌跡を美しく残す
     this.life = 0;
     this.alive = true;
     
+    // きらめきタイプ（星型か円形か）
+    this.type = Math.random() < 0.45 ? 'sparkle' : 'circle';
+    this.angle = rand(0, Math.PI * 2);
+    this.spin = rand(-0.06, 0.06);
+    
+    // ステージごとのテーマカラーに色相を合わせ、わずかにゆらぎを与える
     const stageHue = (220 + (stage - 1) * 50) % 360;
-    this.color = `hsla(${stageHue}, 90%, 85%, `;
+    this.hue = (stageHue + rand(-15, 15) + 360) % 360;
   }
 
   update() {
+    this.vx *= this.friction;
+    this.vy *= this.friction;
+    this.vy += this.gravity;
+    
     this.x += this.vx;
     this.y += this.vy;
+    
+    this.angle += this.spin;
     this.life++;
     if (this.life >= this.maxLife) {
       this.alive = false;
@@ -993,23 +1021,51 @@ class TrailParticle {
 
   draw(ctx) {
     const t = this.life / this.maxLife;
-    const opacity = (1 - t) * 0.88; // 不透明度を上げて輝きを強調
-    const r = this.radius * (1 + t * 1.5); // 劇的に外側へ広がる（波紋の演出）
+    const opacity = (1 - t) * 0.92; // 不透明度を上げて輝きを強調
+    const r = this.radius * (1 + t * 0.85); // 緩やかに拡大する
     
     ctx.save();
+    ctx.globalCompositeOperation = 'screen';
     
-    // 1. 中心の非常に淡い光の広がり
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = this.color + (opacity * 0.12) + ')';
-    ctx.fill();
-
-    // 2. 波紋を表現する外側の極細の光の輪郭線
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.strokeStyle = this.color + opacity + ')';
-    ctx.lineWidth = 0.8 * this.scale;
-    ctx.stroke();
+    const color = `hsla(${this.hue}, 95%, 85%, ${opacity.toFixed(3)})`;
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    
+    if (this.type === 'sparkle') {
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      
+      // 美しい4点星型のパス
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 2.2);
+      ctx.lineTo(r * 0.32, 0);
+      ctx.lineTo(r * 2.2, 0);
+      ctx.lineTo(0, r * 0.32);
+      ctx.lineTo(0, r * 2.2);
+      ctx.lineTo(-r * 0.32, 0);
+      ctx.lineTo(-r * 2.2, 0);
+      ctx.lineTo(0, -r * 0.32);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 擬似的なグロー発光
+      ctx.fillStyle = `hsla(${this.hue}, 95%, 80%, ${(opacity * 0.22).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 4.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // 幻想的な微細光サークル
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // 光の輪郭線
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, r * 1.7, 0, Math.PI * 2);
+      ctx.strokeStyle = `hsla(${this.hue}, 90%, 80%, ${(opacity * 0.45).toFixed(3)})`;
+      ctx.lineWidth = 0.6 * this.scale;
+      ctx.stroke();
+    }
     
     ctx.restore();
   }
@@ -1169,10 +1225,10 @@ class GameEngine {
 
   _createCursorTrail(x, y) {
     if (!this.gameStarted || this.paused) return;
-    // 軌道上に1〜2個の光の粒の波紋を発生させる
-    const count = randInt(1, 2);
+    // 軌道上に2〜3個の光の粒の波紋を発生させる
+    const count = randInt(2, 3);
     for (let i = 0; i < count; i++) {
-      this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage));
+      this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage, true));
     }
   }
 
@@ -1422,6 +1478,17 @@ class GameEngine {
       for (let i = this.effects.length - 1; i >= 0; i--) {
         this.effects[i].update(dt);
         if (!this.effects[i].alive) this.effects.splice(i, 1);
+      }
+
+      // タッチ中（またはマウス位置が有効なとき）、静止していても波動円の周りに微細なパーティクルを自動生成
+      if (this.gameStarted && this.mouse.x > -500 && this.mouse.y > -500) {
+        // 2フレームに1回程度の頻度で、波動円から柔らかく放出
+        if (this.frame % 2 === 0) {
+          const count = randInt(1, 2);
+          for (let i = 0; i < count; i++) {
+            this.trailParticles.push(new TrailParticle(this.mouse.x, this.mouse.y, this.scale, this.stage, false));
+          }
+        }
       }
 
       // 軌道パーティクルの更新
