@@ -729,7 +729,9 @@ class Asteroid {
     this.canvasW = canvasW;
     this.canvasH = canvasH;
     this.scale = scale;
-    this.radius = rand(CONFIG.ASTEROID_MIN_RADIUS, CONFIG.ASTEROID_MAX_RADIUS) * scale;
+    // 小惑星が小さくなりすぎないよう、スケーリングの下限を 0.68 に設定
+    const asteroidScale = Math.max(0.68, scale);
+    this.radius = rand(CONFIG.ASTEROID_MIN_RADIUS, CONFIG.ASTEROID_MAX_RADIUS) * asteroidScale;
 
     const speed = rand(CONFIG.ASTEROID_SPEED_MIN, CONFIG.ASTEROID_SPEED_MAX) * 0.38; // 浮遊感のあるゆっくり速度
     let angle;
