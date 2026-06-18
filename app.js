@@ -1162,6 +1162,22 @@ class GameEngine {
   _bindEvents() {
     window.addEventListener('resize', () => this._resize());
 
+    // iOSスワイプバック防止用のエッジガード（左右の透明な壁）のタッチイベントを完全に無効化
+    const preventBack = e => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+    };
+    const leftGuard = document.getElementById('ios-edge-guard-left');
+    const rightGuard = document.getElementById('ios-edge-guard-right');
+    if (leftGuard && rightGuard) {
+      ['touchstart', 'touchmove', 'touchend'].forEach(evtName => {
+        leftGuard.addEventListener(evtName, preventBack, { passive: false });
+        rightGuard.addEventListener(evtName, preventBack, { passive: false });
+      });
+    }
+
     window.addEventListener('mousemove', e => {
       this.mouse.x = e.clientX;
       this.mouse.y = e.clientY;
