@@ -72,14 +72,7 @@ function easeOutQuart(t) {
 // ============================================================
 class SoundEngine {
   constructor() {
-    // ページ読み込み時点で AudioContext を生成（suspended でも OK）
-    // ユーザー操作まで suspended のままブラウザが保持する
-    try {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-      this.ctx = null;
-      console.warn('Web Audio API not available:', e);
-    }
+    this.ctx = null;
     this.reverbNode = null;
     this.reverbReady = false;
     this.carbonatedBuffer = null;
@@ -87,10 +80,17 @@ class SoundEngine {
 
   /**
    * ユーザー操作（クリック・タッチ）のコールスタックで呼ぶ。
-   * AudioContext を resume し、初回のみリバーブを初期化する。
+   * AudioContext を生成/resume し、初回のみリバーブを初期化する。
    */
   unlock() {
-    if (!this.ctx) return;
+    if (!this.ctx) {
+      try {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn('Web Audio API not available:', e);
+        return;
+      }
+    }
 
     const _unlockAndPlayBeep = () => {
       this._ensureReverb();
