@@ -380,3 +380,88 @@ body.game-active #gravity-cursor {
   box-shadow: 0 0 12px var(--planet-glow);
 }
 
+/* ---------- スマートフォン向け最適化（画面幅600px以下） ---------- */
+@media (max-width: 600px) {
+  /* HUD（右上情報）の縮小と位置の最適化 */
+  #hud {
+    top: calc(10px + env(safe-area-inset-top));
+    right: 12px;
+    min-width: 140px;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+  .hud-row {
+    gap: 8px;
+    padding: 1px 0;
+  }
+  .hud-row + .hud-row {
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+  .hud-label {
+    font-size: 8px;
+  }
+  .hud-value {
+    font-size: 11px;
+  }
+
+  /* 操作パネル（左上）の縮小と位置の最適化 */
+  .control-panel {
+    top: calc(10px + env(safe-area-inset-top));
+    left: 12px;
+    gap: 6px;
+  }
+  .control-btn {
+    font-size: 9px;
+    padding: 6px 12px;
+    border-radius: 16px;
+  }
+
+  /* スタート画面・リザルト画面の縮小と整理 */
+  .overlay-content {
+    padding: 24px 20px;
+    max-width: 320px;
+    border-radius: 16px;
+  }
+  .game-title {
+    font-size: 24px;
+    margin-bottom: 2px;
+  }
+  .game-subtitle {
+    font-size: 10px;
+    margin-bottom: 16px;
+    letter-spacing: 0.2em;
+  }
+  .game-desc {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .game-hint {
+    font-size: 9px;
+    padding: 6px 12px;
+    margin-bottom: 20px;
+  }
+  .action-btn {
+    font-size: 12px;
+    padding: 10px 24px;
+  }
+  
+  /* リザルト */
+  .result-label {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  #result-planet-visual {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+  }
+  .result-score span:first-child {
+    font-size: 32px;
+  }
+  .result-time-text {
+    margin-bottom: 20px;
+  }
+}
+
