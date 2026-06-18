@@ -59,15 +59,10 @@ body.game-active {
   top: 0; left: 0;
   width: 64px;
   height: 64px;
-  border-radius: 50%;
-  border: 1.5px solid var(--cursor-ring);
-  background: var(--cursor-core);
   pointer-events: none;
   transform: translate(-50%, -50%);
   transition: transform 0.05s linear, opacity 0.3s ease;
   z-index: 9999;
-  backdrop-filter: blur(1px);
-  will-change: transform;
   opacity: 0;
 }
 
@@ -75,22 +70,55 @@ body.game-active #gravity-cursor {
   opacity: 1;
 }
 
+/* 波動（波紋）アニメーション */
+.wave {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 210, 160, 0.38);
+  background: rgba(240, 210, 160, 0.02);
+  box-shadow: 0 0 10px rgba(240, 200, 140, 0.12);
+  animation: pulse-wave 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.wave:nth-child(2) {
+  animation-delay: 1.2s; /* 2枚目の波紋を時間差で広げる */
+}
+
+@keyframes pulse-wave {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
 #gravity-cursor-inner {
   position: absolute;
   top: 50%; left: 50%;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(240, 210, 160, 0.7);
+  background: rgba(240, 210, 160, 0.85);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px 2px rgba(240, 200, 140, 0.5);
+  box-shadow: 0 0 12px 4px rgba(240, 200, 140, 0.65);
 }
 
-/* カーソルが引力発動中に少し広がる */
-#gravity-cursor.active {
-  border-color: rgba(240, 210, 160, 0.55);
-  background: rgba(240, 210, 160, 0.13);
-  box-shadow: 0 0 24px 6px rgba(240, 200, 140, 0.1);
+/* 引力発動中（小惑星を誘導している最中）は波動が加速し、より活性化する */
+#gravity-cursor.active .wave {
+  border-color: rgba(240, 210, 160, 0.72);
+  background: rgba(240, 210, 160, 0.04);
+  box-shadow: 0 0 16px rgba(240, 200, 140, 0.3);
+  animation-duration: 1.4s;
+}
+#gravity-cursor.active .wave:nth-child(2) {
+  animation-delay: 0.7s;
 }
 
 /* ---------- HUD（右上パネル） ---------- */
@@ -382,6 +410,16 @@ body.game-active #gravity-cursor {
 
 /* ---------- スマートフォン向け最適化（画面幅600px以下） ---------- */
 @media (max-width: 600px) {
+  /* 引力カーソルのモバイルサイズ縮小 */
+  #gravity-cursor {
+    width: 48px;
+    height: 48px;
+  }
+  #gravity-cursor-inner {
+    width: 6px;
+    height: 6px;
+  }
+
   /* HUD（右上情報）の縮小と位置の最適化 */
   #hud {
     top: calc(10px + env(safe-area-inset-top));
