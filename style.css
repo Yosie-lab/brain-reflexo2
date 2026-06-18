@@ -30,8 +30,9 @@
 }
 
 html, body {
-  width: 100%;
-  height: 100%;
+  position: fixed; /* iOS Safariの画面バウンスおよびスワイプ履歴戻りを物理的にロック */
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   background: var(--bg-deep);
   color: var(--ui-text);

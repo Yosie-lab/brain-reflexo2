@@ -82,6 +82,11 @@ class SoundEngine {
    * AudioContext を生成/resume し、初回のみリバーブを初期化する。
    */
   unlock() {
+    // すでにAudioContextが作成され、アクティブ（running）状態であれば何もしないで早期リターン
+    if (this.ctx && this.ctx.state === 'running') {
+      return;
+    }
+
     if (!this.ctx) {
       try {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1204,6 +1209,9 @@ class GameEngine {
     }
 
     window.addEventListener('mousemove', e => {
+      if (this.running) {
+        this.sound.init(); // マウス移動中も音声コンテキストがsuspendedになるのを防止
+      }
       this.mouse.x = e.clientX;
       this.mouse.y = e.clientY;
       this._moveCursor(e.clientX, e.clientY);
@@ -1212,6 +1220,9 @@ class GameEngine {
 
     window.addEventListener('touchmove', e => {
       e.preventDefault();
+      if (this.running) {
+        this.sound.init(); // ドラッグ中も音声コンテキストがsuspendedになるのを防止
+      }
       const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
