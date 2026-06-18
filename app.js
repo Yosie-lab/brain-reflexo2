@@ -968,18 +968,18 @@ class TrailParticle {
     this.y = y;
     this.scale = scale;
     const angle = rand(0, Math.PI * 2);
-    const speed = rand(0.1, 0.4) * scale;
+    const speed = rand(0.08, 0.28) * scale;
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed;
-    // 画面に馴染む小さなキラキラサイズ
-    this.radius = rand(1.2, 3.2) * scale;
-    this.maxLife = rand(22, 38);
+    
+    // iPhoneでもはっきり視認できるサイズ（直径約8px〜16px）
+    this.radius = rand(4.2, 8.5) * scale;
+    this.maxLife = rand(30, 48); // 寿命を少し長くして軌跡を美しく残す
     this.life = 0;
     this.alive = true;
     
-    // 現在のステージの色相に合わせた光
     const stageHue = (220 + (stage - 1) * 50) % 360;
-    this.color = `hsla(${stageHue}, 85%, 82%, `;
+    this.color = `hsla(${stageHue}, 90%, 85%, `;
   }
 
   update() {
@@ -993,15 +993,24 @@ class TrailParticle {
 
   draw(ctx) {
     const t = this.life / this.maxLife;
-    const opacity = (1 - t) * 0.65;
-    // 波紋のように少し広がりながらフェードアウト
-    const r = this.radius * (1 + t * 0.42);
+    const opacity = (1 - t) * 0.88; // 不透明度を上げて輝きを強調
+    const r = this.radius * (1 + t * 1.5); // 劇的に外側へ広がる（波紋の演出）
     
     ctx.save();
+    
+    // 1. 中心の非常に淡い光の広がり
     ctx.beginPath();
     ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = this.color + opacity + ')';
+    ctx.fillStyle = this.color + (opacity * 0.12) + ')';
     ctx.fill();
+
+    // 2. 波紋を表現する外側の極細の光の輪郭線
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = this.color + opacity + ')';
+    ctx.lineWidth = 0.8 * this.scale;
+    ctx.stroke();
+    
     ctx.restore();
   }
 }
