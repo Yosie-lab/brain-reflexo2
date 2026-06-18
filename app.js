@@ -92,29 +92,28 @@ class SoundEngine {
       }
     }
 
-    const _unlockAndPlayBeep = () => {
+    // iOS Safariの制限を突破するため、ユーザー操作の「同期的コールスタック内」でダミー音を即座に再生
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      gain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      osc.start(0);
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch (err) {
+      console.warn("Synchronous dummy sound play failed:", err);
+    }
+
+    // 非同期で音声コンテキストのレジュームとリバーブバッファ等の構築を行う
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(() => {
+        this._ensureReverb();
+        this._ensureCarbonated();
+      }).catch(e => console.warn('AudioContext resume failed:', e));
+    } else {
       this._ensureReverb();
       this._ensureCarbonated();
-      
-      // iOS Safari用のダミー音再生（無音の音を再生して出力を強制的に活性化）
-      try {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        gain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
-        osc.start(0);
-        osc.stop(this.ctx.currentTime + 0.05);
-      } catch (err) {
-        console.warn("Dummy sound play failed:", err);
-      }
-    };
-
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume().then(_unlockAndPlayBeep)
-        .catch(e => console.warn('AudioContext resume failed:', e));
-    } else {
-      _unlockAndPlayBeep();
     }
   }
 
