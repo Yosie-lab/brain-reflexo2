@@ -960,6 +960,53 @@ class AbsorbEffect {
 }
 
 // ============================================================
+// class: TrailParticle（軌道の光の粒の波紋）
+// ============================================================
+class TrailParticle {
+  constructor(x, y, scale = 1.0, stage = 1) {
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
+    const angle = rand(0, Math.PI * 2);
+    const speed = rand(0.1, 0.4) * scale;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    // 画面に馴染む小さなキラキラサイズ
+    this.radius = rand(1.2, 3.2) * scale;
+    this.maxLife = rand(22, 38);
+    this.life = 0;
+    this.alive = true;
+    
+    // 現在のステージの色相に合わせた光
+    const stageHue = (220 + (stage - 1) * 50) % 360;
+    this.color = `hsla(${stageHue}, 85%, 82%, `;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life++;
+    if (this.life >= this.maxLife) {
+      this.alive = false;
+    }
+  }
+
+  draw(ctx) {
+    const t = this.life / this.maxLife;
+    const opacity = (1 - t) * 0.65;
+    // 波紋のように少し広がりながらフェードアウト
+    const r = this.radius * (1 + t * 0.42);
+    
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = this.color + opacity + ')';
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ============================================================
 // class: FloatingText（フィードバックテキスト）
 // ============================================================
 class FloatingText {
@@ -997,6 +1044,7 @@ class GameEngine {
     this.shootingStars = [];
     this.asteroids = [];
     this.effects = [];
+    this.trailParticles = [];
     this.planet = null;
     this.sound = new SoundEngine();
 
@@ -1052,6 +1100,7 @@ class GameEngine {
       this.mouse.x = e.clientX;
       this.mouse.y = e.clientY;
       this._moveCursor(e.clientX, e.clientY);
+      this._createCursorTrail(e.clientX, e.clientY);
     });
 
     window.addEventListener('touchmove', e => {
@@ -1060,12 +1109,14 @@ class GameEngine {
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
       this._moveCursor(t.clientX, t.clientY);
+      this._createCursorTrail(t.clientX, t.clientY);
     }, { passive: false });
 
     window.addEventListener('touchstart', e => {
       const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
+      this._createCursorTrail(t.clientX, t.clientY);
       if (this.running) {
         this.sound.init();
       }
@@ -1105,6 +1156,15 @@ class GameEngine {
       this.showResult(performance.now(), false);
     });
     document.getElementById('save-btn').addEventListener('click', () => this._saveGame());
+  }
+
+  _createCursorTrail(x, y) {
+    if (!this.gameStarted || this.paused) return;
+    // 軌道上に1〜2個の光の粒の波紋を発生させる
+    const count = randInt(1, 2);
+    for (let i = 0; i < count; i++) {
+      this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage));
+    }
   }
 
   _moveCursor(x, y) {
@@ -1158,6 +1218,7 @@ class GameEngine {
     this.rockCount = 0;
     this.asteroids = [];
     this.effects = [];
+    this.trailParticles = [];
     this.shootingStars = [];
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
@@ -1353,6 +1414,13 @@ class GameEngine {
         this.effects[i].update(dt);
         if (!this.effects[i].alive) this.effects.splice(i, 1);
       }
+
+      // 軌道パーティクルの更新
+      for (let i = this.trailParticles.length - 1; i >= 0; i--) {
+        const p = this.trailParticles[i];
+        p.update();
+        if (!p.alive) this.trailParticles.splice(i, 1);
+      }
     }
 
     this._updateHUD(timestamp);
@@ -1433,6 +1501,9 @@ class GameEngine {
     this.shootingStars.forEach(s => s.draw(ctx));
 
     this.effects.forEach(e => e.draw(ctx));
+
+    // 軌道パーティクルの描画
+    this.trailParticles.forEach(p => p.draw(ctx));
 
     this.planet.draw(ctx, this.stage, this.rockCount);
 
