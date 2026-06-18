@@ -1021,7 +1021,7 @@ class TrailParticle {
 
   draw(ctx) {
     const t = this.life / this.maxLife;
-    const opacity = (1 - t) * 0.58; // 光量を少しだけ引き上げ（0.49 -> 0.58）
+    const opacity = (1 - t) * 0.49; // 光量を元の 0.49 に戻す
     const r = this.radius * (1 + t * 0.85); // 緩やかに拡大する
     
     ctx.save();
