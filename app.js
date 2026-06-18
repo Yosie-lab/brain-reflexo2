@@ -1021,7 +1021,7 @@ class TrailParticle {
 
   draw(ctx) {
     const t = this.life / this.maxLife;
-    const opacity = (1 - t) * 0.69; // 光量を1.4倍（0.49 * 1.4 ≈ 0.69）
+    const opacity = (1 - t) * 0.97; // 光量を1.4倍（0.69 * 1.4 ≈ 0.97）
     const r = this.radius * (1 + t * 0.85); // 緩やかに拡大する
     
     ctx.save();
@@ -1112,6 +1112,7 @@ class GameEngine {
     this.trailParticles = [];
     this.planet = null;
     this.sound = new SoundEngine();
+    this.cursorMoveTimeout = null;
 
     this.stage = 1;
     this.stageCleared = false;
@@ -1240,6 +1241,19 @@ class GameEngine {
       return Math.sqrt(dx * dx + dy * dy) < CONFIG.GRAVITY_RADIUS * this.scale;
     });
     this.cursor.classList.toggle('active', near);
+
+    // カーソル移動を検知して波紋の表示状態をトグル
+    this.cursor.classList.add('moving');
+    this.cursor.classList.remove('stopped');
+    
+    if (this.cursorMoveTimeout) {
+      clearTimeout(this.cursorMoveTimeout);
+    }
+    
+    this.cursorMoveTimeout = setTimeout(() => {
+      this.cursor.classList.remove('moving');
+      this.cursor.classList.add('stopped');
+    }, 120); // 120ms間動きが止まれば「停止」と判定
   }
 
   _startGame(isResume = false) {

@@ -77,25 +77,30 @@ body.game-active #gravity-cursor {
   width: 100%; height: 100%;
   border-radius: 50%;
   border-style: solid;
-  border-color: rgba(129, 195, 215, 0.29); /* 光量を1.4倍（0.21 -> 0.29） */
-  background: radial-gradient(circle, rgba(129, 195, 215, 0.012) 0%, rgba(129, 195, 215, 0) 70%);
-  box-shadow: 0 0 0 1.2px rgba(129, 195, 215, 0.05), 0 0 5px rgba(129, 195, 215, 0.075);
-  /* じわ〜と広がるように周期を3.6秒に延ばし、イージングを滑らかに調整 */
-  animation: pulse-wave 3.6s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+  border-color: rgba(129, 195, 215, 0.44); /* 光量を1.5倍（0.29 -> 0.44） */
+  background: radial-gradient(circle, rgba(129, 195, 215, 0.018) 0%, rgba(129, 195, 215, 0) 70%);
+  box-shadow: 0 0 0 1.2px rgba(129, 195, 215, 0.075), 0 0 5px rgba(129, 195, 215, 0.11);
+  opacity: 0; /* 通常時は非表示（移動中も非表示にする） */
   transform-origin: center;
   pointer-events: none;
 }
 
+/* カーソルが停止した時のみ表示され、3回アニメーションして消滅（forwards）する */
+#gravity-cursor.stopped .wave {
+  opacity: 1;
+  animation: pulse-wave 3.6s cubic-bezier(0.25, 0.8, 0.25, 1) 3 forwards;
+}
+
 .wave:nth-child(2) {
   animation-delay: 1.2s; /* 時間差を広げてゆったりと */
-  border-color: rgba(141, 169, 196, 0.25); /* 1.4倍（0.18 -> 0.25） */
-  box-shadow: 0 0 0 1.2px rgba(141, 169, 196, 0.05), 0 0 5px rgba(141, 169, 196, 0.075);
+  border-color: rgba(141, 169, 196, 0.38); /* 1.5倍（0.25 -> 0.38） */
+  box-shadow: 0 0 0 1.2px rgba(141, 169, 196, 0.075), 0 0 5px rgba(141, 169, 196, 0.11);
 }
 
 .wave:nth-child(3) {
   animation-delay: 2.4s;
-  border-color: rgba(194, 175, 240, 0.21); /* 1.4倍（0.15 -> 0.21） */
-  box-shadow: 0 0 0 1.2px rgba(194, 175, 240, 0.025), 0 0 5px rgba(194, 175, 240, 0.05);
+  border-color: rgba(194, 175, 240, 0.32); /* 1.5倍（0.21 -> 0.32） */
+  box-shadow: 0 0 0 1.2px rgba(194, 175, 240, 0.038), 0 0 5px rgba(194, 175, 240, 0.075);
 }
 
 @keyframes pulse-wave {
@@ -117,20 +122,20 @@ body.game-active #gravity-cursor {
 }
 
 /* 引力発動中（小惑星を誘導している最中）は波動が加速し、より活性化するが光量は控えめに */
-#gravity-cursor.active .wave {
-  border-color: rgba(129, 195, 215, 0.66); /* 1.4倍（0.47 -> 0.66） */
-  box-shadow: 0 0 0 1.5px rgba(129, 195, 215, 0.15), 0 0 10px rgba(129, 195, 215, 0.29);
+#gravity-cursor.active.stopped .wave {
+  border-color: rgba(129, 195, 215, 0.99); /* 1.5倍（0.66 -> 0.99） */
+  box-shadow: 0 0 0 1.5px rgba(129, 195, 215, 0.23), 0 0 10px rgba(129, 195, 215, 0.44);
   animation-duration: 2.2s; /* アクティブ時のじわ〜とした広がり */
 }
-#gravity-cursor.active .wave:nth-child(2) {
+#gravity-cursor.active.stopped .wave:nth-child(2) {
   animation-delay: 0.73s;
-  border-color: rgba(141, 169, 196, 0.55); /* 1.4倍（0.39 -> 0.55） */
-  box-shadow: 0 0 0 1.5px rgba(141, 169, 196, 0.13), 0 0 10px rgba(141, 169, 196, 0.25);
+  border-color: rgba(141, 169, 196, 0.83); /* 1.5倍（0.55 -> 0.83） */
+  box-shadow: 0 0 0 1.5px rgba(141, 169, 196, 0.20), 0 0 10px rgba(141, 169, 196, 0.38);
 }
-#gravity-cursor.active .wave:nth-child(3) {
+#gravity-cursor.active.stopped .wave:nth-child(3) {
   animation-delay: 1.46s;
-  border-color: rgba(194, 175, 240, 0.18);
-  box-shadow: 0 0 0 1.5px rgba(194, 175, 240, 0.04), 0 0 8px rgba(194, 175, 240, 0.05);
+  border-color: rgba(194, 175, 240, 0.69); /* 1.5倍（0.46 -> 0.69） */
+  box-shadow: 0 0 0 1.5px rgba(194, 175, 240, 0.15), 0 0 10px rgba(194, 175, 240, 0.30);
 }
 
 /* ---------- HUD（右上パネル） ---------- */
