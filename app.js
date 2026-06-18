@@ -988,8 +988,8 @@ class TrailParticle {
     this.gravity = 0.002 * scale;
     this.friction = 0.965;
     
-    // 粒子をより小さく繊細に調整
-    this.radius = rand(0.8, 2.0) * scale;
+    // iPhoneでもはっきり視認できるサイズ
+    this.radius = rand(2.2, 4.8) * scale;
     this.maxLife = rand(36, 58); // 寿命を少し長くして軌跡を美しく残す
     this.life = 0;
     this.alive = true;
@@ -1225,8 +1225,9 @@ class GameEngine {
 
   _createCursorTrail(x, y) {
     if (!this.gameStarted || this.paused) return;
-    // 確率25%で1個だけ発生させる（移動時の量をさらに半分に抑制）
-    if (Math.random() < 0.25) {
+    // 軌道上に2〜3個の光の粒の波紋を発生させる
+    const count = randInt(2, 3);
+    for (let i = 0; i < count; i++) {
       this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage, true));
     }
   }
@@ -1481,9 +1482,12 @@ class GameEngine {
 
       // タッチ中（またはマウス位置が有効なとき）、静止していても波動円の周りに微細なパーティクルを自動生成
       if (this.gameStarted && this.mouse.x > -500 && this.mouse.y > -500) {
-        // 発生頻度をさらに半分（12フレームに1回）にし、量を半分に抑える
-        if (this.frame % 12 === 0) {
-          this.trailParticles.push(new TrailParticle(this.mouse.x, this.mouse.y, this.scale, this.stage, false));
+        // 2フレームに1回程度の頻度で、波動円から柔らかく放出
+        if (this.frame % 2 === 0) {
+          const count = randInt(1, 2);
+          for (let i = 0; i < count; i++) {
+            this.trailParticles.push(new TrailParticle(this.mouse.x, this.mouse.y, this.scale, this.stage, false));
+          }
         }
       }
 
