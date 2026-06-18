@@ -1021,7 +1021,7 @@ class TrailParticle {
 
   draw(ctx) {
     const t = this.life / this.maxLife;
-    const opacity = (1 - t) * 0.49; // 光量を0.8倍に減衰（0.61 * 0.8 ≈ 0.49）
+    const opacity = (1 - t) * 0.58; // 光量を少しだけ引き上げ（0.49 -> 0.58）
     const r = this.radius * (1 + t * 0.85); // 緩やかに拡大する
     
     ctx.save();
@@ -1225,8 +1225,8 @@ class GameEngine {
 
   _createCursorTrail(x, y) {
     if (!this.gameStarted || this.paused) return;
-    // 軌道上にパーティクルを発生させる（生成量をさらに0.5倍：平均0.8個に削減）
-    if (Math.random() < 0.8) {
+    // 軌道上にパーティクルを発生させる（生成量をさらに3分の2：平均0.53個に削減）
+    if (Math.random() < 0.53) {
       this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage, true));
     }
   }
@@ -1481,8 +1481,8 @@ class GameEngine {
 
       // タッチ中（またはマウス位置が有効なとき）、静止していても波動円の周りに微細なパーティクルを自動生成
       if (this.gameStarted && this.mouse.x > -500 && this.mouse.y > -500) {
-        // 4フレームに1回程度の頻度で、波動円から柔らかく放出（生成量をさらに0.5倍に削減）
-        if (this.frame % 4 === 0) {
+        // 6フレームに1回程度の頻度で、波動円から柔らかく放出（生成量をさらに3分の2に削減）
+        if (this.frame % 6 === 0) {
           this.trailParticles.push(new TrailParticle(this.mouse.x, this.mouse.y, this.scale, this.stage, false));
         }
       }
