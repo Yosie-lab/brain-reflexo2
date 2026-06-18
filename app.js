@@ -503,10 +503,11 @@ class ShootingStar {
 // class: Planet（あなたの星＝月）
 // ============================================================
 class Planet {
-  constructor(x, y) {
+  constructor(x, y, scale = 1.0) {
     this.x = x;
     this.y = y;
-    this.radius = CONFIG.PLANET_INIT_RADIUS;
+    this.scale = scale;
+    this.radius = CONFIG.PLANET_INIT_RADIUS * scale;
     this.breathPhase = 0;
     this.absorbing = false;
     this.absorbTimer = 0;
@@ -523,7 +524,7 @@ class Planet {
   }
 
   grow() {
-    this.radius = Math.min(this.radius + CONFIG.PLANET_GROW_PER_ABSORB, CONFIG.PLANET_MAX_RADIUS);
+    this.radius = Math.min(this.radius + CONFIG.PLANET_GROW_PER_ABSORB * this.scale, CONFIG.PLANET_MAX_RADIUS * this.scale);
     this.absorbing = true;
     this.absorbTimer = 0;
   }
@@ -724,10 +725,11 @@ class Planet {
 // class: Asteroid（小惑星）
 // ============================================================
 class Asteroid {
-  constructor(canvasW, canvasH, stage = 1, isInitial = false) {
+  constructor(canvasW, canvasH, scale = 1.0, stage = 1, isInitial = false) {
     this.canvasW = canvasW;
     this.canvasH = canvasH;
-    this.radius = rand(CONFIG.ASTEROID_MIN_RADIUS, CONFIG.ASTEROID_MAX_RADIUS);
+    this.scale = scale;
+    this.radius = rand(CONFIG.ASTEROID_MIN_RADIUS, CONFIG.ASTEROID_MAX_RADIUS) * scale;
 
     const speed = rand(CONFIG.ASTEROID_SPEED_MIN, CONFIG.ASTEROID_SPEED_MAX) * 0.38; // 浮遊感のあるゆっくり速度
     let angle;
@@ -770,8 +772,8 @@ class Asteroid {
   _spawnInScreen() {
     const centerX = this.canvasW / 2;
     const centerY = this.canvasH / 2;
-    const minDistance = 200;
-    const margin = 40;
+    const minDistance = 200 * this.scale;
+    const margin = 40 * this.scale;
 
     for (let attempt = 0; attempt < 50; attempt++) {
       const rx = rand(margin, this.canvasW - margin);
@@ -815,8 +817,9 @@ class Asteroid {
     const dx = mx - this.x;
     const dy = my - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < CONFIG.GRAVITY_RADIUS && dist > 1) {
-      const strength = (1 - dist / CONFIG.GRAVITY_RADIUS) * CONFIG.GRAVITY_STRENGTH;
+    const gravityRadius = CONFIG.GRAVITY_RADIUS * this.scale;
+    if (dist < gravityRadius && dist > 1) {
+      const strength = (1 - dist / gravityRadius) * CONFIG.GRAVITY_STRENGTH;
       this.vx += (dx / dist) * strength;
       this.vy += (dy / dist) * strength;
     }
@@ -991,6 +994,7 @@ class GameEngine {
     this.lastTimestamp = 0;
     this.running = true;
     this.gameStarted = false;
+    this.scale = 1.0;
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
 
@@ -1013,6 +1017,10 @@ class GameEngine {
     this.canvas.height = window.innerHeight;
     this.W = this.canvas.width;
     this.H = this.canvas.height;
+    
+    // 画面幅に応じたスケーリング因数を計算（基準幅 900px）
+    this.scale = Math.max(0.48, Math.min(1.2, this.W / 900));
+    
     if (this.running) {
       this.stars = Array.from({ length: Math.floor((this.W * this.H) / CONFIG.STAR_COUNT_RATIO) },
         () => new BackgroundStar(this.W, this.H)
@@ -1082,7 +1090,7 @@ class GameEngine {
 
     const near = this.asteroids.some(a => {
       const dx = a.x - x, dy = a.y - y;
-      return Math.sqrt(dx * dx + dy * dy) < CONFIG.GRAVITY_RADIUS;
+      return Math.sqrt(dx * dx + dy * dy) < CONFIG.GRAVITY_RADIUS * this.scale;
     });
     this.cursor.classList.toggle('active', near);
   }
@@ -1105,7 +1113,7 @@ class GameEngine {
     // スタート時に、1個だけ浮遊していた状態から2個目を即時追加スポーンさせる
     // 画面外からゆっくり入る演出にするため isInitial = false で生成
     if (this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
-      this.asteroids.push(new Asteroid(this.W, this.H, this.stage, false));
+      this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage, false));
     }
 
     // すでに初期化されているため、時間の起点を設定してゲームを開始する
@@ -1139,19 +1147,19 @@ class GameEngine {
     );
 
     // すでに惑星があり、keepStage が true の場合はサイズを維持して引き継ぐ
-    const prevRadius = (this.planet && keepStage) ? this.planet.radius : CONFIG.PLANET_INIT_RADIUS;
-    this.planet = new Planet(this.W / 2, this.H / 2);
+    const prevRadius = (this.planet && keepStage) ? this.planet.radius : CONFIG.PLANET_INIT_RADIUS * this.scale;
+    this.planet = new Planet(this.W / 2, this.H / 2, this.scale);
     this.planet.radius = prevRadius;
 
     // 初期小惑星を画面内にスポーン配置
     this.asteroids = [];
     if (!this.gameStarted) {
       // 最初は1個だけ浮遊させる
-      this.asteroids.push(new Asteroid(this.W, this.H, this.stage, true));
+      this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage, true));
     } else {
       // 自動ステージ遷移時などは、最初から最大数（2個）を画面内に配置
       for (let i = 0; i < CONFIG.ASTEROID_MAX_COUNT; i++) {
-        this.asteroids.push(new Asteroid(this.W, this.H, this.stage, true));
+        this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage, true));
       }
     }
 
@@ -1271,7 +1279,7 @@ class GameEngine {
         this.spawnTimer += dt;
         if (this.spawnTimer >= this.spawnInterval
           && this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
-          this.asteroids.push(new Asteroid(this.W, this.H, this.stage));
+          this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
           this.spawnTimer = 0;
 
           const elapsed = (timestamp - this.startTime) / 1000;
@@ -1297,11 +1305,11 @@ class GameEngine {
           this.asteroids.splice(i, 1);
           // スタート画面で画面外に出た場合は即座に1個補充
           if (!this.gameStarted) {
-            this.asteroids.push(new Asteroid(this.W, this.H, this.stage, true));
+            this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage, true));
           } else {
             // ゲーム中も、画面外に出たら即座に1個補充
             if (this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
-              this.asteroids.push(new Asteroid(this.W, this.H, this.stage));
+              this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
             }
           }
           continue;
@@ -1357,7 +1365,7 @@ class GameEngine {
     } else {
       // まだクリアしていない場合、吸収した分を即座に1個補充する
       if (this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
-        this.asteroids.push(new Asteroid(this.W, this.H, this.stage));
+        this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
       }
     }
   }
