@@ -1179,6 +1179,10 @@ class GameEngine {
     }, { passive: false });
 
     window.addEventListener('touchstart', e => {
+      // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はデフォルトジェスチャー（スワイプバック等）を無効化
+      if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
+        if (e.cancelable) e.preventDefault();
+      }
       const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
@@ -1186,7 +1190,7 @@ class GameEngine {
       if (this.running) {
         this.sound.init();
       }
-    });
+    }, { passive: false });
 
     window.addEventListener('touchend', () => {
       if (this.running) {

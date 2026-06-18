@@ -38,6 +38,8 @@ html, body {
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  overscroll-behavior: none; /* 履歴移動（スワイプによる進む・戻るジェスチャー）の防止 */
+  touch-action: none; /* ピンチズームやブラウザデフォルトのフリックジェスチャー防止 */
 }
 
 body.game-active {
