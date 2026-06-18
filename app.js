@@ -1225,9 +1225,8 @@ class GameEngine {
 
   _createCursorTrail(x, y) {
     if (!this.gameStarted || this.paused) return;
-    // 軌道上に1〜2個の光の粒の波紋を発生させる（少し減らしてスッキリさせる）
-    const count = randInt(1, 2);
-    for (let i = 0; i < count; i++) {
+    // 確率50%で1個だけ発生させる（移動時の量をさらに半分に抑制）
+    if (Math.random() < 0.5) {
       this.trailParticles.push(new TrailParticle(x, y, this.scale, this.stage, true));
     }
   }
@@ -1482,8 +1481,8 @@ class GameEngine {
 
       // タッチ中（またはマウス位置が有効なとき）、静止していても波動円の周りに微細なパーティクルを自動生成
       if (this.gameStarted && this.mouse.x > -500 && this.mouse.y > -500) {
-        // 頻度を落とし（3フレームに1回）、生成数も1個に抑えてパーティクル量を少し減らす
-        if (this.frame % 3 === 0) {
+        // 発生頻度をさらに半分（6フレームに1回）にし、量を半分に抑える
+        if (this.frame % 6 === 0) {
           this.trailParticles.push(new TrailParticle(this.mouse.x, this.mouse.y, this.scale, this.stage, false));
         }
       }
