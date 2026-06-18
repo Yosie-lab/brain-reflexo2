@@ -13,8 +13,7 @@ const CONFIG = {
   // 背景の星
   STAR_COUNT_RATIO: 7000,              // 画面面積あたりの星の数（脳リフレクソ仕様）
 
-  // 小惑星
-  ASTEROID_MIN_RADIUS: 7,
+  ASTEROID_MIN_RADIUS: 11,
   ASTEROID_MAX_RADIUS: 18,
   ASTEROID_SPEED_MIN: 0.18,
   ASTEROID_SPEED_MAX: 0.52,
@@ -744,8 +743,8 @@ class Asteroid {
     this.canvasW = canvasW;
     this.canvasH = canvasH;
     this.scale = scale;
-    // 小惑星が小さくなりすぎないよう、スケーリングの下限を 0.68 に設定
-    const asteroidScale = Math.max(0.68, scale);
+    // 小惑星が小さくなりすぎないよう、スケーリングの下限を 0.85 に設定
+    const asteroidScale = Math.max(0.85, scale);
     this.radius = rand(CONFIG.ASTEROID_MIN_RADIUS, CONFIG.ASTEROID_MAX_RADIUS) * asteroidScale;
 
     const speed = rand(CONFIG.ASTEROID_SPEED_MIN, CONFIG.ASTEROID_SPEED_MAX) * 0.38; // 浮遊感のあるゆっくり速度
@@ -912,8 +911,8 @@ class Asteroid {
     bodyGrad.addColorStop(1, this.color);
     ctx.fillStyle = bodyGrad;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(180,190,190,0.15)';
-    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = 'rgba(10,15,20,0.42)'; // 発光パーティクルと区別するため、暗くくっきりした輪郭線で立体感を強調
+    ctx.lineWidth = 1.3;
     ctx.stroke();
 
     ctx.restore();
