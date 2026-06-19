@@ -369,12 +369,12 @@ class SoundEngine {
       const now = ctx.currentTime;
 
       const dryGain = ctx.createGain();
-      dryGain.gain.setValueAtTime(0.05, now);
+      dryGain.gain.setValueAtTime(0.20, now); // 音量を0.05から0.20へ底上げ
       dryGain.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.TONE_DURATION);
       dryGain.connect(ctx.destination);
 
       const wetGain = ctx.createGain();
-      wetGain.gain.setValueAtTime(1.2, now);
+      wetGain.gain.setValueAtTime(2.4, now); // リバーブへのセンド量を1.2から2.4へ底上げ
       wetGain.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.REVERB_DURATION);
       wetGain.connect(this.reverbNode);
 
@@ -385,7 +385,7 @@ class SoundEngine {
 
       const env = ctx.createGain();
       env.gain.setValueAtTime(0.001, now);
-      env.gain.exponentialRampToValueAtTime(0.60, now + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.95, now + 0.01); // エンベロープ最大ゲインを0.60から0.95へ底上げ
       env.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.TONE_DURATION);
 
       osc.connect(env);
@@ -1250,6 +1250,15 @@ class GameEngine {
 
     // iOS Safariでエッジスワイプを確実にブロックするため、イベントはwindowではなくdocumentにバインドする
     document.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      const startX = t.clientX;
+      const width = window.innerWidth;
+      
+      // 画面の左右両端 24px 以内であれば、スワイプバックジェスチャーを物理的に防止するために即時キャンセルする
+      if (startX < 24 || startX > width - 24) {
+        if (e.cancelable) e.preventDefault();
+      }
+
       // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はブラウザ全体のスクロールを無効化
       if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
         if (e.cancelable) e.preventDefault();
@@ -1257,7 +1266,6 @@ class GameEngine {
       if (this.running) {
         this.sound.init(); // ドラッグ中も音声コンテキストがsuspendedになるのを防止
       }
-      const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
       this._moveCursor(t.clientX, t.clientY);
@@ -1265,11 +1273,19 @@ class GameEngine {
     }, { passive: false });
 
     document.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      const startX = t.clientX;
+      const width = window.innerWidth;
+      
+      // 画面の左右両端 24px 以内であれば、タッチ開始自体を即時キャンセルしてスワイプバックを完全に阻止する
+      if (startX < 24 || startX > width - 24) {
+        if (e.cancelable) e.preventDefault();
+      }
+
       // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はデフォルトジェスチャー（スワイプバック等）を無効化
       if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
         if (e.cancelable) e.preventDefault();
       }
-      const t = e.touches[0];
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
       this._createCursorTrail(t.clientX, t.clientY);

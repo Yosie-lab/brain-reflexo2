@@ -530,12 +530,12 @@ body.game-active #gravity-cursor {
   }
 }
 
-/* iOSスワイプバック防止用の透明なエッジガード（左右各16px） */
+/* iOSスワイプバック防止用の透明なエッジガード（左右各24px） */
 .ios-edge-guard {
   position: fixed;
   top: 0;
   height: 100%;
-  width: 16px;
+  width: 24px;
   z-index: 999999;
   background: transparent;
   pointer-events: auto; /* タッチイベントを確実に拾う */
