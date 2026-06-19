@@ -157,57 +157,56 @@ body.game-active #gravity-cursor {
   top: 20px;
   right: 20px;
   z-index: 100;
-  background: rgba(6, 11, 24, 0.28); /* さらに背景を透過させ、背後の宇宙が見えるように */
-  border: 1px solid rgba(212, 201, 176, 0.05);
+  background: rgba(6, 11, 24, 0.45); /* 背景の透過度を少し下げて可読性を確保 */
+  border: 1px solid rgba(212, 201, 176, 0.12); /* 境界線を少し明るく */
   border-radius: 12px;
-  padding: 8px 14px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  min-width: 180px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  opacity: 0.35; /* 通常プレイ中は非常に薄く表示し、視界を邪魔しないようにする */
-  transition: opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
-  pointer-events: none; /* タッチイベントを透過させ、ボタン操作の邪魔や誤操作を防ぐ */
+  padding: 10px 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 190px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  opacity: 0.70; /* プレイを妨げない範囲で、よりくっきりと見やすい透過度(0.70)に引き上げ */
+  transition: opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  pointer-events: none; /* タッチイベントは透過させて誤タップを防ぐ */
 }
 
-/* ユーザーがHUDの場所に注意を向けた際（ホバー時や、ゲーム開始直後など）に少し見えやすくする */
+/* ユーザーがHUDの場所に注意を向けた際（ホバー時や、ゲーム開始直後など）に完全に見えるようにする */
 #hud:hover {
-  opacity: 0.9;
-  background: rgba(6, 11, 24, 0.8);
-  border-color: rgba(212, 201, 176, 0.2);
+  opacity: 1.0;
+  background: rgba(6, 11, 24, 0.85);
+  border-color: rgba(212, 201, 176, 0.3);
 }
 
 .hud-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 2px 0;
+  gap: 14px;
+  padding: 3px 0;
 }
 
 .hud-row + .hud-row {
-  border-top: 1px solid rgba(212, 201, 176, 0.05);
-  margin-top: 4px;
-  padding-top: 4px;
+  border-top: 1px solid rgba(212, 201, 176, 0.08);
+  margin-top: 5px;
+  padding-top: 5px;
 }
 
 .hud-label {
   font-family: var(--font-sans);
-  font-weight: 300;
-  font-size: 9px;
+  font-weight: 400; /* 細すぎず読みやすいウェイトに */
+  font-size: 10px;
   color: var(--ui-text-soft);
-  opacity: 0.8;
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
 .hud-value {
   font-family: var(--font-serif);
-  font-weight: 300;
-  font-size: 12px;
-  color: var(--planet-warm);
-  text-shadow: 0 0 6px var(--planet-glow);
-  letter-spacing: 0.02em;
+  font-weight: 400; /* 数字をはっきり見せるために少し太く */
+  font-size: 14px;
+  color: #fff; /* 最も高いコントラストで読みやすく (白に近い暖かい色調) */
+  text-shadow: 0 0 8px var(--planet-glow), 0 0 16px rgba(240, 200, 140, 0.3);
+  letter-spacing: 0.04em;
 }
 
 /* ---------- オーバーレイ共通 ---------- */
