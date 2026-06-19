@@ -1363,10 +1363,6 @@ class GameEngine {
         this._resetGame();
       }
     });
-    this.quitBtn.addEventListener('click', () => {
-      this.gameStarted = false;
-      this.showResult(performance.now(), false);
-    });
     document.getElementById('save-btn').addEventListener('click', () => this._saveGame());
   }
 
