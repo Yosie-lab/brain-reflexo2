@@ -152,52 +152,62 @@ body.game-active #gravity-cursor {
   box-shadow: 0 0 0 1.5px rgba(194, 175, 240, 0.15), 0 0 10px rgba(194, 175, 240, 0.30);
 }
 
-/* ---------- HUD（右上パネル） ---------- */
 #hud {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 100;
-  background: var(--ui-glass);
-  border: 1px solid var(--ui-border);
-  border-radius: 14px;
-  padding: 14px 18px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  min-width: 250px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  background: rgba(6, 11, 24, 0.28); /* さらに背景を透過させ、背後の宇宙が見えるように */
+  border: 1px solid rgba(212, 201, 176, 0.05);
+  border-radius: 12px;
+  padding: 8px 14px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  min-width: 180px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  opacity: 0.35; /* 通常プレイ中は非常に薄く表示し、視界を邪魔しないようにする */
+  transition: opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+  pointer-events: none; /* タッチイベントを透過させ、ボタン操作の邪魔や誤操作を防ぐ */
+}
+
+/* ユーザーがHUDの場所に注意を向けた際（ホバー時や、ゲーム開始直後など）に少し見えやすくする */
+#hud:hover {
+  opacity: 0.9;
+  background: rgba(6, 11, 24, 0.8);
+  border-color: rgba(212, 201, 176, 0.2);
 }
 
 .hud-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 3px 0;
+  gap: 12px;
+  padding: 2px 0;
 }
 
 .hud-row + .hud-row {
-  border-top: 1px solid var(--ui-border);
-  margin-top: 6px;
-  padding-top: 8px;
+  border-top: 1px solid rgba(212, 201, 176, 0.05);
+  margin-top: 4px;
+  padding-top: 4px;
 }
 
 .hud-label {
   font-family: var(--font-sans);
   font-weight: 300;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--ui-text-soft);
-  letter-spacing: 0.06em;
+  opacity: 0.8;
+  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
 .hud-value {
   font-family: var(--font-serif);
   font-weight: 300;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--planet-warm);
-  text-shadow: 0 0 8px var(--planet-glow);
-  letter-spacing: 0.04em;
+  text-shadow: 0 0 6px var(--planet-glow);
+  letter-spacing: 0.02em;
 }
 
 /* ---------- オーバーレイ共通 ---------- */
@@ -407,7 +417,13 @@ body.game-active #gravity-cursor {
   left: 20px;
   z-index: 100;
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  opacity: 0.35; /* プレイ中は極めて薄く表示 */
+  transition: opacity 0.4s ease;
+}
+
+.control-panel:hover {
+  opacity: 0.95;
 }
 
 .control-panel.hidden {
@@ -417,18 +433,18 @@ body.game-active #gravity-cursor {
 .control-btn {
   font-family: var(--font-serif);
   font-weight: 300;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   color: var(--ui-text-soft);
-  background: var(--ui-glass);
-  border: 1px solid var(--ui-border);
-  border-radius: 20px;
-  padding: 8px 16px;
-  cursor: pointer !important; /* カスタムカーソル無効化のため強制 */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
-  transition: all 0.3s ease;
+  background: rgba(6, 11, 24, 0.28); /* 背景を大幅に透過 */
+  border: 1px solid rgba(212, 201, 176, 0.05);
+  border-radius: 16px;
+  padding: 6px 14px;
+  cursor: pointer !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: all 0.4s ease;
   outline: none;
 }
 
