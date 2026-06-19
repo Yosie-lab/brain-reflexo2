@@ -75,6 +75,7 @@ class SoundEngine {
     this.reverbNode = null;
     this.reverbReady = false;
     this.carbonatedBuffer = null;
+    this.keepAliveNode = null;
   }
 
   /**
@@ -84,6 +85,7 @@ class SoundEngine {
   unlock() {
     // すでにAudioContextが作成され、アクティブ（running）状態であれば何もしないで早期リターン
     if (this.ctx && this.ctx.state === 'running') {
+      this._keepAlive();
       return;
     }
 
@@ -114,10 +116,30 @@ class SoundEngine {
       this.ctx.resume().then(() => {
         this._ensureReverb();
         this._ensureCarbonated();
+        this._keepAlive();
       }).catch(e => console.warn('AudioContext resume failed:', e));
     } else {
       this._ensureReverb();
       this._ensureCarbonated();
+      this._keepAlive();
+    }
+  }
+
+  /** 音声コンテキストが自動的に省電力サスペンドするのを防止する常時超微低周波オシレーター */
+  _keepAlive() {
+    if (!this.ctx || this.keepAliveNode || this.ctx.state !== 'running') return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1, this.ctx.currentTime); // 人間には聞こえない 1Hz
+      gain.gain.setValueAtTime(0.00001, this.ctx.currentTime); // ほぼ無音
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(0);
+      this.keepAliveNode = osc;
+    } catch (e) {
+      console.warn("Failed to initialize keep-alive oscillator:", e);
     }
   }
 
