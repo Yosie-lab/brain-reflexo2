@@ -1307,9 +1307,14 @@ class GameEngine {
     });
 
     // タッチによるゲーム操作
-    // ★ touchmove で preventDefault() を呼ぶとスクロールトリックが無効になるので呼び出さない！
-    // プルダウン（上端スワイプ）は CSS側の overscroll-behavior:none (body)で封じる。
+    // ゲームプレイ中は preventDefault() を呼んで画面のスクロールや引っ張りを完全に防ぐ。
+    // 非プレイ中（メニュー等）はスワイプバック防止トリックを生かすため通常処理にする。
     document.addEventListener('touchmove', e => {
+      if (this.gameStarted && !this.paused) {
+        if (e.cancelable) {
+          e.preventDefault(); // iOS Safariの下部スワイプや画面バウンスを強力に防止
+        }
+      }
       const t = e.touches[0];
       if (this.running) {
         this.sound.init();
@@ -1318,7 +1323,7 @@ class GameEngine {
       this.mouse.y = t.clientY;
       this._moveCursor(t.clientX, t.clientY);
       this._createCursorTrail(t.clientX, t.clientY);
-    }, { passive: true }); // passive:true でブラウザのスクロール処理を妨げない
+    }, { passive: false }); // preventDefault を呼ぶため passive: false に変更
 
     document.addEventListener('touchstart', e => {
       const t = e.touches[0];

@@ -45,6 +45,11 @@ html, body {
 
 body.game-active {
   cursor: none;
+  touch-action: none; /* ゲームプレイ中のブラウザデフォルトジェスチャー（スクロール、下部バー引っ張り出しなど）を防止 */
+}
+
+body.game-active #app-wrapper {
+  touch-action: none;
 }
 
 /* ---------- キャンバス ---------- */
@@ -60,35 +65,61 @@ body.game-active {
 #gravity-cursor {
   position: fixed;
   top: 0; left: 0;
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: transform 0.04s linear, opacity 0.3s ease;
+  transition: transform 0.05s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.3s ease;
   z-index: 9999;
   opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.game-active #gravity-cursor {
   opacity: 1;
 }
 
-/* 波動（波紋）アニメーション - 3重の幻想的なネオン波動リング */
+/* カーソルの中心部：ほのかに輝く繊細な光の核 */
+.cursor-core {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 8px rgba(129, 195, 215, 0.9),
+    0 0 16px rgba(129, 195, 215, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+  z-index: 2;
+}
+
+/* 引力アクティブ時のコアの輝き変化 */
+#gravity-cursor.active .cursor-core {
+  background: #fff8f0;
+  transform: scale(1.3);
+  box-shadow: 
+    0 0 10px rgba(240, 200, 140, 0.95),
+    0 0 22px rgba(240, 200, 140, 0.6);
+}
+
+/* 波動（波紋）アニメーション - 洗練された1重のオーガニックリング */
 .wave {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border-style: solid;
-  border-color: rgba(129, 195, 215, 0.44); /* 光量を維持 */
-  background: radial-gradient(circle, rgba(129, 195, 215, 0.018) 0%, rgba(129, 195, 215, 0) 70%);
-  box-shadow: 0 0 0 1.2px rgba(129, 195, 215, 0.075), 0 0 5px rgba(129, 195, 215, 0.11);
-  opacity: 0; /* 初期状態は非表示 */
+  border: 1px solid rgba(129, 195, 215, 0.32);
+  background: radial-gradient(circle, rgba(129, 195, 215, 0.015) 0%, rgba(129, 195, 215, 0) 70%);
+  box-shadow: 0 0 8px rgba(129, 195, 215, 0.05);
+  opacity: 0;
   transform-origin: center;
   pointer-events: none;
-  animation: pulse-wave 3.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: pulse-wave 2.2s cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: forwards;
   animation-play-state: paused;
+  z-index: 1;
 }
 
 /* カーソルが動いている時は無限にループ */
@@ -98,58 +129,37 @@ body.game-active #gravity-cursor {
   animation-iteration-count: infinite;
 }
 
-/* カーソルが停止した時は3回だけ出現して消滅 */
+/* カーソルが停止した時は1回だけ優しく広がって消滅 */
 #gravity-cursor.stopped .wave {
   opacity: 1;
   animation-play-state: running;
-  animation-iteration-count: 3;
-}
-
-.wave:nth-child(2) {
-  animation-delay: 1.2s; /* 時間差を広げてゆったりと */
-  border-color: rgba(141, 169, 196, 0.38); /* 1.5倍（0.25 -> 0.38） */
-  box-shadow: 0 0 0 1.2px rgba(141, 169, 196, 0.075), 0 0 5px rgba(141, 169, 196, 0.11);
-}
-
-.wave:nth-child(3) {
-  animation-delay: 2.4s;
-  border-color: rgba(194, 175, 240, 0.32); /* 1.5倍（0.21 -> 0.32） */
-  box-shadow: 0 0 0 1.2px rgba(194, 175, 240, 0.038), 0 0 5px rgba(194, 175, 240, 0.075);
+  animation-iteration-count: 1;
 }
 
 @keyframes pulse-wave {
   0% {
-    transform: scale(0.05); /* もっと小さい点に近い円から始まる */
-    border-width: 0.8px;
-    opacity: 0.95;
+    transform: scale(0.1);
+    border-width: 1.2px;
+    opacity: 0.9;
     filter: blur(0px);
   }
-  50% {
-    opacity: 0.65;
+  60% {
+    opacity: 0.45;
   }
   100% {
-    transform: scale(3.2); /* じわ〜と広がる */
-    border-width: 5.2px;
+    transform: scale(2.4);
+    border-width: 0.5px;
     opacity: 0;
-    filter: blur(1.5px); /* 消え方も優しく */
+    filter: blur(0.8px);
   }
 }
 
-/* 引力発動中（小惑星を誘導している最中）は波動が加速し、より活性化するが光量は控えめに */
+/* 引力発動中（小惑星を誘導している最中）は、波紋が暖かみのあるゴールドに変化し、鼓動のように優しく脈打つ */
 #gravity-cursor.active .wave {
-  border-color: rgba(129, 195, 215, 0.99); /* 1.5倍（0.66 -> 0.99） */
-  box-shadow: 0 0 0 1.5px rgba(129, 195, 215, 0.23), 0 0 10px rgba(129, 195, 215, 0.44);
-  animation-duration: 2.2s; /* アクティブ時のじわ〜とした広がり */
-}
-#gravity-cursor.active .wave:nth-child(2) {
-  animation-delay: 0.73s;
-  border-color: rgba(141, 169, 196, 0.83); /* 1.5倍（0.55 -> 0.83） */
-  box-shadow: 0 0 0 1.5px rgba(141, 169, 196, 0.20), 0 0 10px rgba(141, 169, 196, 0.38);
-}
-#gravity-cursor.active .wave:nth-child(3) {
-  animation-delay: 1.46s;
-  border-color: rgba(194, 175, 240, 0.69); /* 1.5倍（0.46 -> 0.69） */
-  box-shadow: 0 0 0 1.5px rgba(194, 175, 240, 0.15), 0 0 10px rgba(194, 175, 240, 0.30);
+  border-color: rgba(240, 200, 140, 0.65);
+  background: radial-gradient(circle, rgba(240, 200, 140, 0.02) 0%, rgba(240, 200, 140, 0) 70%);
+  box-shadow: 0 0 12px rgba(240, 200, 140, 0.15);
+  animation-duration: 1.6s; /* アクティブ時は少しピッチを上げてインタラクティブ感を出す */
 }
 
 #hud {
