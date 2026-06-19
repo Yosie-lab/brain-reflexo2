@@ -14,95 +14,100 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- iOSスワイプバック防止用のスクロールラッパー -->
+  <div id="app-wrapper">
+    <!-- iOSスワイプバック防止用のスクロールダミー要素 -->
+    <div id="scroll-dummy"></div>
+    
+    <!-- iOSスワイプバック防止用のエッジガード（透明な壁） -->
+    <div id="ios-edge-guard-left" class="ios-edge-guard"></div>
+    <div id="ios-edge-guard-right" class="ios-edge-guard"></div>
 
-  <!-- iOSスワイプバック防止用のエッジガード（透明な壁） -->
-  <div id="ios-edge-guard-left" class="ios-edge-guard"></div>
-  <div id="ios-edge-guard-right" class="ios-edge-guard"></div>
+    <!-- ゲームキャンバス（全描画ここで） -->
+    <canvas id="game-canvas"></canvas>
 
-  <!-- ゲームキャンバス（全描画ここで） -->
-  <canvas id="game-canvas"></canvas>
-
-  <!-- 引力カーソル（マウス/タッチに追従する光の輪） -->
-  <div id="gravity-cursor">
-    <div class="wave"></div>
-    <div class="wave"></div>
-    <div class="wave"></div>
-  </div>
-
-  <!-- HUD（右上情報パネル） -->
-  <div id="hud">
-    <div class="hud-row">
-      <span class="hud-label">あなたの星 / Your Planet</span>
-      <span id="planet-size-display" class="hud-value">✦</span>
+    <!-- 引力カーソル（マウス/タッチに追従する光の輪） -->
+    <div id="gravity-cursor">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
     </div>
-    <div class="hud-row">
-      <span class="hud-label">引き寄せた小惑星 / Asteroids Attracted</span>
-      <span id="rock-count-display" class="hud-value">0</span>
-    </div>
-    <div class="hud-row">
-      <span class="hud-label">経過時間 / Elapsed Time</span>
-      <span id="time-display" class="hud-value">0:00</span>
-    </div>
-  </div>
 
-  <!-- 操作パネル（左上） -->
-  <div id="control-panel" class="control-panel hidden">
-    <button id="quit-btn" class="control-btn quit-btn">終了する / Quit</button>
-    <button id="save-btn" class="control-btn save-btn">保存して終了 / Save & Quit</button>
-  </div>
-
-  <!-- 一時停止画面（現在は使用しないため非表示） -->
-  <div id="pause-screen" class="overlay hidden">
-    <div class="overlay-content">
-      <h2 class="game-title" style="font-size: 26px; margin-bottom: 12px;">一時停止中 / Paused</h2>
-      <p class="game-desc" style="margin-bottom: 28px;">
-         ゲームは一時停止されています。<br>「続ける」で再開します。
-        <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">The game is paused. Select resume to continue.</span>
-      </p>
-      <button id="resume-btn" class="action-btn">続ける / Resume</button>
-    </div>
-  </div>
-
-  <!-- 開始画面 -->
-  <div id="start-screen" class="overlay">
-    <div class="overlay-content">
-      <h1 class="game-title">脳リフレクソ2</h1>
-      <p class="game-subtitle">星雲庭園 / Nebula Garden</p>
-      <p class="game-desc">
-        静かな宇宙で、<br>迷子の小惑星をあなたの星へ<br>引き寄せてください。
-        <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">Please guide the lost asteroids to your planet in the quiet universe.</span>
-      </p>
-      <p class="game-hint">
-        カーソル（指）を小惑星に近づけるだけ
-        <br><span style="font-size: 10px; opacity: 0.8; display: block; margin-top: 4px;">Just move the cursor (or finger) close to the asteroids</span>
-      </p>
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-        <button id="start-btn" class="action-btn">新しくはじめる / New Game</button>
-        <button id="resume-save-btn" class="action-btn hidden">続きからはじめる / Continue</button>
+    <!-- HUD（右上情報パネル） -->
+    <div id="hud">
+      <div class="hud-row">
+        <span class="hud-label">あなたの星 / Your Planet</span>
+        <span id="planet-size-display" class="hud-value">✦</span>
       </div>
-      <!-- 音声トラブルシューティングの追加 -->
-      <div style="font-size: 10px; color: var(--ui-text-soft); margin-top: 20px; line-height: 1.5; border-top: 1px dashed var(--ui-border); padding-top: 12px; width: 100%;">
-        🔊 音が出ない場合は、本体側面の「消音（マナー）モード」をオフにし、音量を上げてください。<br>
-        <span style="font-size: 9px; opacity: 0.8;">If there is no sound, please disable silent mode on your iPhone and turn up the volume.</span>
+      <div class="hud-row">
+        <span class="hud-label">引き寄せた小惑星 / Asteroids Attracted</span>
+        <span id="rock-count-display" class="hud-value">0</span>
+      </div>
+      <div class="hud-row">
+        <span class="hud-label">経過時間 / Elapsed Time</span>
+        <span id="time-display" class="hud-value">0:00</span>
       </div>
     </div>
-  </div>
 
-  <!-- リザルト画面 -->
-  <div id="result-screen" class="overlay hidden">
-    <div class="overlay-content">
-      <p id="result-title" class="result-label">今日もお疲れ様でした / Thank you for your time today</p>
-      <div id="result-planet-visual"></div>
-      <p class="result-score">
-        <span id="result-count">0</span><span class="result-unit"> 個の小惑星を導きました / asteroids guided</span>
-      </p>
-      <p class="result-time-text">プレイ時間 / Play Time: <span id="result-time">0:00</span></p>
-      <button id="retry-btn" class="action-btn">もう一度育てる / Play Again</button>
+    <!-- 操作パネル（左上） -->
+    <div id="control-panel" class="control-panel hidden">
+      <button id="quit-btn" class="control-btn quit-btn">終了する / Quit</button>
+      <button id="save-btn" class="control-btn save-btn">保存して終了 / Save & Quit</button>
     </div>
-  </div>
 
-  <!-- フィードバックテキスト（動的に生成・追加される） -->
-  <div id="feedback-container"></div>
+    <!-- 一時停止画面（現在は使用しないため非表示） -->
+    <div id="pause-screen" class="overlay hidden">
+      <div class="overlay-content">
+        <h2 class="game-title" style="font-size: 26px; margin-bottom: 12px;">一時停止中 / Paused</h2>
+        <p class="game-desc" style="margin-bottom: 28px;">
+           ゲームは一時停止されています。<br>「続ける」で再開します。
+          <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">The game is paused. Select resume to continue.</span>
+        </p>
+        <button id="resume-btn" class="action-btn">続ける / Resume</button>
+      </div>
+    </div>
+
+    <!-- 開始画面 -->
+    <div id="start-screen" class="overlay">
+      <div class="overlay-content">
+        <h1 class="game-title">脳リフレクソ2</h1>
+        <p class="game-subtitle">星雲庭園 / Nebula Garden</p>
+        <p class="game-desc">
+          静かな宇宙で、<br>迷子の小惑星をあなたの星へ<br>引き寄せてください。
+          <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">Please guide the lost asteroids to your planet in the quiet universe.</span>
+        </p>
+        <p class="game-hint">
+          カーソル（指）を小惑星に近づけるだけ
+          <br><span style="font-size: 10px; opacity: 0.8; display: block; margin-top: 4px;">Just move the cursor (or finger) close to the asteroids</span>
+        </p>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+          <button id="start-btn" class="action-btn">新しくはじめる / New Game</button>
+          <button id="resume-save-btn" class="action-btn hidden">続きからはじめる / Continue</button>
+        </div>
+        <!-- 音声トラブルシューティングの追加 -->
+        <div style="font-size: 10px; color: var(--ui-text-soft); margin-top: 20px; line-height: 1.5; border-top: 1px dashed var(--ui-border); padding-top: 12px; width: 100%;">
+          🔊 音が出ない場合は、本体側面の「消音（マナー)モード」をオフにし、音量を上げてください。<br>
+          <span style="font-size: 9px; opacity: 0.8;">If there is no sound, please disable silent mode on your iPhone and turn up the volume.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- リザルト画面 -->
+    <div id="result-screen" class="overlay hidden">
+      <div class="overlay-content">
+        <p id="result-title" class="result-label">今日もお疲れ様でした / Thank you for your time today</p>
+        <div id="result-planet-visual"></div>
+        <p class="result-score">
+          <span id="result-count">0</span><span class="result-unit"> 個の小惑星を導きました / asteroids guided</span>
+        </p>
+        <p class="result-time-text">プレイ時間 / Play Time: <span id="result-time">0:00</span></p>
+        <button id="retry-btn" class="action-btn">もう一度育てる / Play Again</button>
+      </div>
+    </div>
+
+    <!-- フィードバックテキスト（動的に生成・追加される） -->
+    <div id="feedback-container"></div>
+  </div>
 
   <script src="app.js"></script>
 </body>

@@ -548,4 +548,23 @@ body.game-active #gravity-cursor {
   right: 0;
 }
 
+/* iOSスワイプバック防止用ダミースクロール設定 */
+#app-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  z-index: 10;
+}
+
+#scroll-dummy {
+  width: calc(100vw + 20px);
+  height: 100%;
+  pointer-events: none;
+}
+
 

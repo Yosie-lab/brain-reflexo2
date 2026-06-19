@@ -1166,6 +1166,33 @@ class GameEngine {
   _bindEvents() {
     window.addEventListener('resize', () => this._resize());
 
+    // iOSスワイプバック防止用のスクロール位置制御
+    const appWrapper = document.getElementById('app-wrapper');
+    if (appWrapper) {
+      // 初期位置を 10px に設定し、左右スクロール可能な余白を維持
+      appWrapper.scrollLeft = 10;
+      
+      const lockScroll = () => {
+        // 左端または右端に近づいたら、瞬時に中央（10px）に引き戻す
+        if (appWrapper.scrollLeft < 4) {
+          appWrapper.scrollLeft = 10;
+        } else if (appWrapper.scrollLeft > 16) {
+          appWrapper.scrollLeft = 10;
+        }
+      };
+
+      appWrapper.addEventListener('scroll', lockScroll, { passive: true });
+      
+      // タッチ開始および移動時にも強制的に端への到達を防止
+      ['touchstart', 'touchmove'].forEach(evtName => {
+        appWrapper.addEventListener(evtName, () => {
+          if (appWrapper.scrollLeft < 4 || appWrapper.scrollLeft > 16) {
+            appWrapper.scrollLeft = 10;
+          }
+        }, { passive: true });
+      });
+    }
+
     // 戻るボタン/スワイプバック防止ハック (popstateを利用して履歴内で留まらせる)
     // 履歴スタックにダミー履歴を5回分積み上げることで、連続したスワイプバックでも離脱を防ぐ
     for (let i = 0; i < 5; i++) {
