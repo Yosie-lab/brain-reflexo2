@@ -1132,6 +1132,7 @@ class GameEngine {
 
     this.mouse = { x: -1000, y: -1000 };
     this.touchStartX = -1;
+    this.touchStartY = -1;
     this.stars = [];
     this.shootingStars = [];
     this.asteroids = [];
@@ -1276,8 +1277,11 @@ class GameEngine {
       const t = e.touches[0];
       const width = window.innerWidth;
       
-      // タッチの開始位置が画面の左右両端 24px 以内であれば、スワイプバックジェスチャーを物理的に防止するために即時キャンセルする
+      // 左右端からのスワイプ開始、または上端（35px以内）からのプルダウン開始の場合は即時キャンセル
       if (this.touchStartX >= 0 && (this.touchStartX < 24 || this.touchStartX > width - 24)) {
+        if (e.cancelable) e.preventDefault();
+      }
+      if (this.touchStartY >= 0 && this.touchStartY < 35) {
         if (e.cancelable) e.preventDefault();
       }
 
@@ -1297,10 +1301,14 @@ class GameEngine {
     document.addEventListener('touchstart', e => {
       const t = e.touches[0];
       this.touchStartX = t.clientX;
+      this.touchStartY = t.clientY;
       const width = window.innerWidth;
       
-      // 画面の左右両端 24px 以内であれば、タッチ開始自体を即時キャンセルしてスワイプバックを完全に阻止する
+      // 左右端からのタッチ、または上端（35px以内）からのタッチはジェスチャー（スワイプバック・プルダウン）防止のために即時キャンセル
       if (this.touchStartX < 24 || this.touchStartX > width - 24) {
+        if (e.cancelable) e.preventDefault();
+      }
+      if (this.touchStartY < 35) {
         if (e.cancelable) e.preventDefault();
       }
 
@@ -1318,6 +1326,7 @@ class GameEngine {
 
     window.addEventListener('touchend', () => {
       this.touchStartX = -1; // タッチ終了時にリセット
+      this.touchStartY = -1;
       if (this.running) {
         this.sound.init();
       }
