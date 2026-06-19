@@ -1167,7 +1167,10 @@ class GameEngine {
     window.addEventListener('resize', () => this._resize());
 
     // 戻るボタン/スワイプバック防止ハック (popstateを利用して履歴内で留まらせる)
-    history.pushState(null, null, location.href);
+    // 履歴スタックにダミー履歴を5回分積み上げることで、連続したスワイプバックでも離脱を防ぐ
+    for (let i = 0; i < 5; i++) {
+      history.pushState(null, null, location.href);
+    }
     window.addEventListener('popstate', () => {
       history.pushState(null, null, location.href);
     });
@@ -1218,8 +1221,12 @@ class GameEngine {
       this._createCursorTrail(e.clientX, e.clientY);
     });
 
-    window.addEventListener('touchmove', e => {
-      e.preventDefault();
+    // iOS Safariでエッジスワイプを確実にブロックするため、イベントはwindowではなくdocumentにバインドする
+    document.addEventListener('touchmove', e => {
+      // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はブラウザ全体のスクロールを無効化
+      if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
+        if (e.cancelable) e.preventDefault();
+      }
       if (this.running) {
         this.sound.init(); // ドラッグ中も音声コンテキストがsuspendedになるのを防止
       }
@@ -1230,7 +1237,7 @@ class GameEngine {
       this._createCursorTrail(t.clientX, t.clientY);
     }, { passive: false });
 
-    window.addEventListener('touchstart', e => {
+    document.addEventListener('touchstart', e => {
       // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はデフォルトジェスチャー（スワイプバック等）を無効化
       if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
         if (e.cancelable) e.preventDefault();
