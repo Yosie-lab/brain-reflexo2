@@ -985,6 +985,58 @@ class AbsorbEffect {
   }
 }
 
+// class: RainbowRippleEffect（8個回収ごとの七色の波紋エフェクト）
+// ============================================================
+class RainbowRippleEffect {
+  constructor(x, y, scale = 1.0) {
+    this.x = x;
+    this.y = y;
+    this.maxRadius = 380 * scale; // 画面全体に広がる十分な大きさ
+    this.duration = 1800; // 1.8秒かけてゆったり広がる
+    this.elapsed = 0;
+    this.alive = true;
+    this.scale = scale;
+  }
+
+  update(dt) {
+    this.elapsed += dt;
+    if (this.elapsed >= this.duration) this.alive = false;
+  }
+
+  draw(ctx) {
+    const t = easeOutQuart(Math.min(this.elapsed / this.duration, 1));
+    const r = this.maxRadius * t;
+    const opacity = (1 - t) * 0.75; // 七色の鮮やかさを保つ
+
+    if (r > 5) {
+      ctx.save();
+      // 七色のカラーパレット（美しいネオン風）
+      const colors = [
+        `rgba(255, 99, 132, ${opacity.toFixed(3)})`,   // 赤 / Pink
+        `rgba(255, 159, 64, ${opacity.toFixed(3)})`,   // 橙 / Orange
+        `rgba(255, 205, 86, ${opacity.toFixed(3)})`,   // 黄 / Yellow
+        `rgba(75, 192, 192, ${opacity.toFixed(3)})`,   // 緑 / Teal
+        `rgba(54, 162, 235, ${opacity.toFixed(3)})`,   // 青 / Blue
+        `rgba(153, 102, 255, ${opacity.toFixed(3)})`,  // 藍 / Indigo
+        `rgba(238, 130, 238, ${opacity.toFixed(3)})`   // 菫 / Violet
+      ];
+
+      // 七重の同心円リングを少しずつズラして重ねることで虹のグラデーションを表現
+      for (let i = 0; i < 7; i++) {
+        const ringR = r - (i * 9 * this.scale);
+        if (ringR <= 0) continue;
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, ringR, 0, Math.PI * 2);
+        ctx.strokeStyle = colors[i];
+        ctx.lineWidth = 3.8 * (1 - t * 0.45); // 徐々に細くなる
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+}
+
 // ============================================================
 // class: TrailParticle（軌道の光の粒の波紋）
 // ============================================================
@@ -1675,6 +1727,12 @@ class GameEngine {
 
     this.rockCount++;
     this.asteroids.splice(index, 1);
+
+    // 小惑星を8個集めるごとに中央の惑星から七色の波紋が広がる
+    if (this.rockCount > 0 && this.rockCount % 8 === 0) {
+      this.effects.push(new RainbowRippleEffect(this.planet.x, this.planet.y, this.scale));
+      this.sound.playCarbonated();
+    }
 
     // 18個になった時点で、自動で次のステージへ移行する
     if (this.rockCount >= 18) {
