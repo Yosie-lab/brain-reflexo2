@@ -1006,30 +1006,35 @@ class RainbowRippleEffect {
   draw(ctx) {
     const t = easeOutQuart(Math.min(this.elapsed / this.duration, 1));
     const r = this.maxRadius * t;
-    const opacity = (1 - t) * 0.75; // 七色の鮮やかさを保つ
+    const opacity = (1 - t) * 0.95; // 透明度の減衰を抑え、より鮮やかに維持
 
     if (r > 5) {
       ctx.save();
+      // ネオンのような発光効果（シャドウ）を追加
+      ctx.shadowBlur = 25 * (1 - t * 0.5); // リングが広がるにつれてぼかし量も調整
+
       // 七色のカラーパレット（美しいネオン風）
       const colors = [
-        `rgba(255, 99, 132, ${opacity.toFixed(3)})`,   // 赤 / Pink
-        `rgba(255, 159, 64, ${opacity.toFixed(3)})`,   // 橙 / Orange
-        `rgba(255, 205, 86, ${opacity.toFixed(3)})`,   // 黄 / Yellow
-        `rgba(75, 192, 192, ${opacity.toFixed(3)})`,   // 緑 / Teal
-        `rgba(54, 162, 235, ${opacity.toFixed(3)})`,   // 青 / Blue
-        `rgba(153, 102, 255, ${opacity.toFixed(3)})`,  // 藍 / Indigo
-        `rgba(238, 130, 238, ${opacity.toFixed(3)})`   // 菫 / Violet
+        `rgba(255, 60, 110, ${opacity.toFixed(3)})`,   // 鮮やかなピンク
+        `rgba(255, 120, 30, ${opacity.toFixed(3)})`,   // 鮮やかなオレンジ
+        `rgba(255, 220, 50, ${opacity.toFixed(3)})`,   // 鮮やかなイエロー
+        `rgba(35, 230, 200, ${opacity.toFixed(3)})`,   // 鮮やかなミントグリーン
+        `rgba(45, 160, 255, ${opacity.toFixed(3)})`,   // 鮮やかなブルー
+        `rgba(130, 80, 255, ${opacity.toFixed(3)})`,   // 鮮やかなインディゴ
+        `rgba(230, 90, 230, ${opacity.toFixed(3)})`    // 鮮やかなバイオレット
       ];
 
       // 七重の同心円リングを少しずつズラして重ねることで虹のグラデーションを表現
+      // リングの間隔を少し広げて存在感を増す
       for (let i = 0; i < 7; i++) {
-        const ringR = r - (i * 9 * this.scale);
+        const ringR = r - (i * 12 * this.scale);
         if (ringR <= 0) continue;
         
         ctx.beginPath();
         ctx.arc(this.x, this.y, ringR, 0, Math.PI * 2);
         ctx.strokeStyle = colors[i];
-        ctx.lineWidth = 3.8 * (1 - t * 0.45); // 徐々に細くなる
+        ctx.shadowColor = colors[i]; // シャドウの色を各リングの色に合わせることで強力にネオン発光させる
+        ctx.lineWidth = 6.5 * (1 - t * 0.4); // 線の太さを 3.8 -> 6.5 に強化
         ctx.stroke();
       }
       ctx.restore();
