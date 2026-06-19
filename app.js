@@ -1728,19 +1728,22 @@ class GameEngine {
     this.rockCount++;
     this.asteroids.splice(index, 1);
 
-    // 小惑星を8個集めるごとに中央の惑星から七色の波紋が広がる
-    if (this.rockCount > 0 && this.rockCount % 8 === 0) {
+    // 8個目の小惑星が吸収された時に七色の波紋を出現させる
+    if (this.rockCount === 8) {
       this.effects.push(new RainbowRippleEffect(this.planet.x, this.planet.y, this.scale));
       this.sound.playCarbonated();
     }
 
-    // 18個になった時点で、自動で次のステージへ移行する
+    // 18個になった時点で、自動で次のステージへ移行する（新ステージ）
     if (this.rockCount >= 18) {
       this.sound.playCarbonated();
       this.stage++;
-      this._initGame(true); // ステージ数とgameStartedを維持して再初期化
+      this._initGame(true); // 内部で effects などがリセットされる
 
-      // 画面中央にステージ進行 of フィードバックを表示
+      // 18個目（新ステージ移行後）に七色の波紋を出現させる
+      this.effects.push(new RainbowRippleEffect(this.planet.x, this.planet.y, this.scale));
+
+      // 画面中央にステージ進行のフィードバックを表示
       const stx = this.planet.x;
       const sty = this.planet.y - 120;
       new FloatingText(stx, sty, `✦ Stage ${this.stage} ✦`);
