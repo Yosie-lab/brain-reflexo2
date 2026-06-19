@@ -1510,18 +1510,24 @@ class GameEngine {
     if (!this.paused) {
       // ゲーム本編中のみ、新規の自動スポーン処理を行う
       if (this.gameStarted) {
-        this.spawnTimer += dt;
-        if (this.spawnTimer >= this.spawnInterval
-          && this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
+        // 画面内の小惑星が完全に0個になった時は、タイマーを待たずに即座にスポーンさせてテンポを改善する
+        if (this.asteroids.length === 0) {
           this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
           this.spawnTimer = 0;
+        } else {
+          this.spawnTimer += dt;
+          if (this.spawnTimer >= this.spawnInterval
+            && this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
+            this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
+            this.spawnTimer = 0;
 
-          const elapsed = (timestamp - this.startTime) / 1000;
-          const reduction = Math.min(elapsed / 180, 1) * 5000;
-          this.spawnInterval = Math.max(
-            CONFIG.ASTEROID_SPAWN_INTERVAL_MIN,
-            CONFIG.ASTEROID_SPAWN_INTERVAL_BASE - reduction
-          );
+            const elapsed = (timestamp - this.startTime) / 1000;
+            const reduction = Math.min(elapsed / 180, 1) * 5000;
+            this.spawnInterval = Math.max(
+              CONFIG.ASTEROID_SPAWN_INTERVAL_MIN,
+              CONFIG.ASTEROID_SPAWN_INTERVAL_BASE - reduction
+            );
+          }
         }
       }
 
