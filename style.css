@@ -558,6 +558,8 @@ body.game-active #gravity-cursor {
   overflow-x: scroll;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: none; /* iOS Chrome等のネイティブスクロール・ジェスチャーを抑制 */
+  overscroll-behavior: none; /* スワイプバックを抑制 */
   z-index: 10;
 }
 

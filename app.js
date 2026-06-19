@@ -1109,6 +1109,7 @@ class GameEngine {
     this.quitBtn = document.getElementById('quit-btn');
 
     this.mouse = { x: -1000, y: -1000 };
+    this.touchStartX = -1;
     this.stars = [];
     this.shootingStars = [];
     this.asteroids = [];
@@ -1248,14 +1249,13 @@ class GameEngine {
       this._createCursorTrail(e.clientX, e.clientY);
     });
 
-    // iOS Safariでエッジスワイプを確実にブロックするため、イベントはwindowではなくdocumentにバインドする
+    // iOSでエッジスワイプを確実にブロックするため、イベントはwindowではなくdocumentにバインドする
     document.addEventListener('touchmove', e => {
       const t = e.touches[0];
-      const startX = t.clientX;
       const width = window.innerWidth;
       
-      // 画面の左右両端 24px 以内であれば、スワイプバックジェスチャーを物理的に防止するために即時キャンセルする
-      if (startX < 24 || startX > width - 24) {
+      // タッチの開始位置が画面の左右両端 24px 以内であれば、スワイプバックジェスチャーを物理的に防止するために即時キャンセルする
+      if (this.touchStartX >= 0 && (this.touchStartX < 24 || this.touchStartX > width - 24)) {
         if (e.cancelable) e.preventDefault();
       }
 
@@ -1274,11 +1274,11 @@ class GameEngine {
 
     document.addEventListener('touchstart', e => {
       const t = e.touches[0];
-      const startX = t.clientX;
+      this.touchStartX = t.clientX;
       const width = window.innerWidth;
       
       // 画面の左右両端 24px 以内であれば、タッチ開始自体を即時キャンセルしてスワイプバックを完全に阻止する
-      if (startX < 24 || startX > width - 24) {
+      if (this.touchStartX < 24 || this.touchStartX > width - 24) {
         if (e.cancelable) e.preventDefault();
       }
 
@@ -1295,6 +1295,7 @@ class GameEngine {
     }, { passive: false });
 
     window.addEventListener('touchend', () => {
+      this.touchStartX = -1; // タッチ終了時にリセット
       if (this.running) {
         this.sound.init();
       }
