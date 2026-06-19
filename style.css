@@ -39,8 +39,8 @@ html, body {
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  overscroll-behavior: none; /* 履歴移動（スワイプによる進む・戻るジェスチャー）の防止 */
-  touch-action: none; /* ピンチズームやブラウザデフォルトのフリックジェスチャー防止 */
+  overscroll-behavior: none; /* プルダウンリロード・スワイプ履歴移動を防止 */
+  touch-action: pan-x pan-y; /* ピンチズームのみ禁止、スワイプはOS側でスクロールとして扱えるよう許可 */
 }
 
 body.game-active {
@@ -548,25 +548,33 @@ body.game-active #gravity-cursor {
   right: 0;
 }
 
-/* iOSスワイプバック防止用ダミースクロール設定 */
+/* iOSスワイプバック防止用ダミースクロール設定
+   ★ touch-action は絶対に設定しない（設定するとoverflow-x scrollが無効になりトリックが効かなくなる）
+   ★ overscroll-behavior も設定しない（設定するとスクロール自体がキャンセルされてしまう）
+*/
 #app-wrapper {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  /* スクロール可能幅をわずかに超えるサイズにして横スクロール余地を作る */
+  width: calc(100vw + 40px);
   height: 100vh;
   overflow-x: scroll;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  touch-action: none; /* iOS Chrome等のネイティブスクロール・ジェスチャーを抑制 */
-  overscroll-behavior: none; /* スワイプバックを抑制 */
   z-index: 10;
 }
 
+/* #app-wrapper の中身（キャンバス等）は全て position:fixed なので
+   コンテナが横スクロールしても表示はずれない。
+   scroll-dummy で横方向のスクロール可能領域を作る。 */
 #scroll-dummy {
-  width: calc(100vw + 20px);
-  height: 100%;
+  /* 必ず #app-wrapper より幅を広くして両端にスクロール余地を作る */
+  width: calc(100vw + 80px);
+  min-width: calc(100vw + 80px);
+  height: 1px;
   pointer-events: none;
+  visibility: hidden;
 }
 
 

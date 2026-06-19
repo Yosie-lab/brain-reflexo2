@@ -1242,57 +1242,33 @@ class GameEngine {
   _bindEvents() {
     window.addEventListener('resize', () => this._resize());
 
-    // iOSスワイプバック防止用のスクロール位置制御
+    // ============================================================
+    // iOS スワイプバック完全封止：ダミースクロールのロック制御
+    // #app-wrapper は overflow-x:scroll で 80px の余張りがある。
+    // scrollLeft を常に中央（40px）に保つことで、左端からのスワイプを
+    // 「要素内スクロール」としてブラウザに認識させ、履歴戻りジェスチャーを消費させる。
+    // ★ touch-action / overscroll-behavior は CSS 側で絶対に設定しないこと！
+    // ============================================================
+    const SCROLL_CENTER = 40; // 80pxの余張りの中央
     const appWrapper = document.getElementById('app-wrapper');
     if (appWrapper) {
-      // 初期位置を 10px に設定し、左右スクロール可能な余白を維持
-      appWrapper.scrollLeft = 10;
-      
-      const lockScroll = () => {
-        // 左端または右端に近づいたら、瞬時に中央（10px）に引き戻す
-        if (appWrapper.scrollLeft < 4) {
-          appWrapper.scrollLeft = 10;
-        } else if (appWrapper.scrollLeft > 16) {
-          appWrapper.scrollLeft = 10;
-        }
-      };
+      appWrapper.scrollLeft = SCROLL_CENTER;
 
-      appWrapper.addEventListener('scroll', lockScroll, { passive: true });
-      
-      // タッチ開始および移動時にも強制的に端への到達を防止
-      ['touchstart', 'touchmove'].forEach(evtName => {
-        appWrapper.addEventListener(evtName, () => {
-          if (appWrapper.scrollLeft < 4 || appWrapper.scrollLeft > 16) {
-            appWrapper.scrollLeft = 10;
-          }
-        }, { passive: true });
-      });
+      // scrollイベント：最速でリセット（ラフな書き方だと遅すぎる）
+      appWrapper.addEventListener('scroll', () => {
+        appWrapper.scrollLeft = SCROLL_CENTER;
+      }, { passive: true });
     }
 
     // 戻るボタン/スワイプバック防止ハック (popstateを利用して履歴内で留まらせる)
-    // 履歴スタックにダミー履歴を5回分積み上げることで、連続したスワイプバックでも離脱を防ぐ
     for (let i = 0; i < 5; i++) {
       history.pushState(null, null, location.href);
     }
     window.addEventListener('popstate', () => {
       history.pushState(null, null, location.href);
+      // popstate で引っ張られた後もスクロール位置を復元
+      if (appWrapper) appWrapper.scrollLeft = SCROLL_CENTER;
     });
-
-    // iOSスワイプバック防止用のエッジガード（左右の透明な壁）のタッチイベントを完全に無効化
-    const preventBack = e => {
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-      e.stopPropagation();
-    };
-    const leftGuard = document.getElementById('ios-edge-guard-left');
-    const rightGuard = document.getElementById('ios-edge-guard-right');
-    if (leftGuard && rightGuard) {
-      ['touchstart', 'touchmove', 'touchend'].forEach(evtName => {
-        leftGuard.addEventListener(evtName, preventBack, { passive: false });
-        rightGuard.addEventListener(evtName, preventBack, { passive: false });
-      });
-    }
 
     // 音声の同期的アンロック処理を各種ボタンのタップ/クリック時にフック
     const startAudio = () => {
@@ -1324,60 +1300,34 @@ class GameEngine {
       this._createCursorTrail(e.clientX, e.clientY);
     });
 
-    // iOSでエッジスワイプを確実にブロックするため、イベントはwindowではなくdocumentにバインドする
+    // タッチによるゲーム操作
+    // ★ touchmove で preventDefault() を呼ぶとスクロールトリックが無効になるので呼び出さない！
+    // プルダウン（上端スワイプ）は CSS側の overscroll-behavior:none (body)で封じる。
     document.addEventListener('touchmove', e => {
       const t = e.touches[0];
-      const width = window.innerWidth;
-      
-      // 左右端からのスワイプ開始、または上端（35px以内）からのプルダウン開始の場合は即時キャンセル
-      if (this.touchStartX >= 0 && (this.touchStartX < 24 || this.touchStartX > width - 24)) {
-        if (e.cancelable) e.preventDefault();
-      }
-      if (this.touchStartY >= 0 && this.touchStartY < 35) {
-        if (e.cancelable) e.preventDefault();
-      }
-
-      // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はブラウザ全体のスクロールを無効化
-      if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
-        if (e.cancelable) e.preventDefault();
-      }
       if (this.running) {
-        this.sound.init(); // ドラッグ中も音声コンテキストがsuspendedになるのを防止
+        this.sound.init();
       }
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
       this._moveCursor(t.clientX, t.clientY);
       this._createCursorTrail(t.clientX, t.clientY);
-    }, { passive: false });
+    }, { passive: true }); // passive:true でブラウザのスクロール処理を妨げない
 
     document.addEventListener('touchstart', e => {
       const t = e.touches[0];
       this.touchStartX = t.clientX;
       this.touchStartY = t.clientY;
-      const width = window.innerWidth;
-      
-      // 左右端からのタッチ、または上端（35px以内）からのタッチはジェスチャー（スワイプバック・プルダウン）防止のために即時キャンセル
-      if (this.touchStartX < 24 || this.touchStartX > width - 24) {
-        if (e.cancelable) e.preventDefault();
-      }
-      if (this.touchStartY < 35) {
-        if (e.cancelable) e.preventDefault();
-      }
-
-      // UI部分（ボタン、設定パネル、オーバーレイ等）以外へのタッチ時はデフォルトジェスチャー（スワイプバック等）を無効化
-      if (e.target.tagName !== 'BUTTON' && !e.target.closest('#control-panel') && !e.target.closest('#hud') && !e.target.closest('.overlay-content')) {
-        if (e.cancelable) e.preventDefault();
-      }
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
       this._createCursorTrail(t.clientX, t.clientY);
       if (this.running) {
         this.sound.init();
       }
-    }, { passive: false });
+    }, { passive: true }); // passive:true でブラウザのスクロール処理を妨げない
 
     window.addEventListener('touchend', () => {
-      this.touchStartX = -1; // タッチ終了時にリセット
+      this.touchStartX = -1;
       this.touchStartY = -1;
       if (this.running) {
         this.sound.init();
