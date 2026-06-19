@@ -1505,6 +1505,11 @@ class GameEngine {
 
   _saveGame() {
     if (!this.gameStarted) return;
+    
+    // 誤押し防止のための確認ダイアログを表示
+    const confirmSave = confirm("ゲーム状況を保存してタイトル画面に戻りますか？\nWould you like to save and return to the title screen?");
+    if (!confirmSave) return;
+
     const elapsedMs = this._getElapsedTime(performance.now());
     const saveData = {
       stage: this.stage,
