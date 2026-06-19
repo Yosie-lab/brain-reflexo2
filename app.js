@@ -17,9 +17,9 @@ const CONFIG = {
   ASTEROID_MAX_RADIUS: 18,
   ASTEROID_SPEED_MIN: 0.18,
   ASTEROID_SPEED_MAX: 0.52,
-  ASTEROID_SPAWN_INTERVAL_BASE: 4500,  // ms（4.5秒ごと）
-  ASTEROID_SPAWN_INTERVAL_MIN: 2000,   // ms（最速でも2秒以上）
-  ASTEROID_MAX_COUNT: 2,               // 最大同時出現数
+  ASTEROID_SPAWN_INTERVAL_BASE: 3800,  // ms（3.8秒ごと。間隔が空きすぎて退屈しないように少し短縮）
+  ASTEROID_SPAWN_INTERVAL_MIN: 1800,   // ms（最速でも1.8秒以上）
+  ASTEROID_MAX_COUNT: 3,               // 最大同時出現数を3個に増やし、常にほどよく操作対象がある状態を維持
   ASTEROID_POINTS: 6,                  // 多角形の頂点数
 
   // Planet（あなたの星＝月）
