@@ -673,4 +673,84 @@ body.game-active #gravity-cursor {
     text-transform: uppercase;
 }
 
+/* =============================================================
+   プレイ画面ヘッダー (Play Screen Header)
+   ============================================================= */
+.app-header {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+body.game-active .app-header {
+  opacity: 0.85;
+  visibility: visible;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #e2e8f0;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  font-family: var(--font-sans);
+}
+
+.logo span {
+  color: #81c3d7;
+  font-weight: 300;
+  text-shadow: 0 0 15px rgba(129, 195, 215, 0.3);
+}
+
+.logo-en {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #94a3b8;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.subtitle .en-text {
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    top: 40px; /* 上部の絶対配置ボタンやセーフエリアと重ならないように調整 */
+  }
+  .app-header .subtitle {
+    display: none; /* スペース確保のためサブタイトルを非表示にする */
+  }
+  .logo {
+    font-size: 19px;
+    letter-spacing: 2px;
+  }
+  .logo-en {
+    font-size: 8px;
+    margin-top: 2px;
+  }
+}
+
+
 
