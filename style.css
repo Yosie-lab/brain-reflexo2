@@ -165,7 +165,7 @@ body.game-active #gravity-cursor {
 #hud {
   position: fixed;
   top: 20px;
-  right: 20px;
+  right: 80px; /* 右上の設定ボタンと重ならないよう、右端から80px左に配置 */
   z-index: 100;
   background: rgba(6, 11, 24, 0.45); /* 背景の透過度を少し下げて可読性を確保 */
   border: 1px solid rgba(212, 201, 176, 0.12); /* 境界線を少し明るく */
@@ -763,6 +763,236 @@ body.game-active .app-header {
     margin-top: 2px;
   }
 }
+
+/* =============================================================
+   設定ボタン & 設定パネル (Settings Panel Style)
+   ============================================================= */
+.btn-settings {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(6, 11, 24, 0.45);
+  border: 1px solid rgba(212, 201, 176, 0.12);
+  color: var(--ui-text);
+  font-size: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  outline: none;
+}
+
+.btn-settings:hover {
+  background: rgba(212, 201, 176, 0.12);
+  border-color: rgba(212, 201, 176, 0.3);
+  transform: rotate(45deg) scale(1.05);
+}
+
+.btn-settings:active {
+  transform: rotate(45deg) scale(0.95);
+}
+
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 380px;
+  height: 100%;
+  height: 100dvh;
+  background: rgba(6, 11, 24, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(212, 201, 176, 0.1);
+  z-index: 120;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.settings-panel.active {
+  transform: translateX(0);
+}
+
+.settings-content {
+  padding: 40px 24px calc(40px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+}
+
+.settings-panel h3 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--ui-text);
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--ui-border);
+  padding-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.btn-settings-close {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  color: var(--ui-text-soft);
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.btn-settings-close:hover {
+  color: var(--ui-text);
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ui-text-soft);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.btn-option {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 201, 176, 0.08);
+  color: var(--ui-text-soft);
+  padding: 10px 4px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  outline: none;
+}
+
+.btn-option .en-sub {
+  font-size: 8px;
+  font-weight: 400;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.btn-option:hover {
+  background: rgba(212, 201, 176, 0.08);
+  border-color: rgba(212, 201, 176, 0.2);
+  color: var(--ui-text);
+}
+
+.btn-option.active {
+  background: linear-gradient(135deg, rgba(129, 195, 215, 0.15), rgba(96, 165, 250, 0.15));
+  border-color: #81c3d7;
+  color: #81c3d7;
+  box-shadow: 0 0 15px rgba(129, 195, 215, 0.15);
+}
+
+.toggle-item {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--ui-border);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: .3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 24px;
+  border: 1px solid rgba(212, 201, 176, 0.08);
+}
+
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--ui-text-soft);
+  transition: .3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 50%;
+}
+
+.switch input:checked + .switch-slider {
+  background-color: rgba(129, 195, 215, 0.2);
+  border-color: #81c3d7;
+}
+
+.switch input:checked + .switch-slider:before {
+  transform: translateX(20px);
+  background-color: #81c3d7;
+  box-shadow: 0 0 8px rgba(129, 195, 215, 0.6);
+}
+
+@media (max-width: 600px) {
+  .btn-settings {
+    top: calc(10px + env(safe-area-inset-top));
+    right: calc(12px + env(safe-area-inset-right));
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .settings-panel {
+    max-width: 100%;
+  }
+}
+
 
 
 

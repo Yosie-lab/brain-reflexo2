@@ -66,6 +66,37 @@
       <button id="save-btn" class="control-btn save-btn">保存して終了 / Save & Quit</button>
     </div>
 
+    <!-- 設定ボタン (歯車) -->
+    <button id="btn-settings" class="btn-settings" aria-label="設定 / Settings">⚙️</button>
+
+    <!-- 設定パネル (スライドイン) -->
+    <div id="settings-panel" class="settings-panel">
+      <div class="settings-content">
+        <button id="btn-settings-close" class="btn-settings-close" aria-label="閉じる / Close">&times;</button>
+        <h3>設定 / Settings</h3>
+        
+        <div class="setting-item toggle-item" style="border-top: none; padding-top: 0; margin-top: 0;">
+          <span class="setting-label">呼吸ガイド / Breath Guide</span>
+          <label class="switch">
+            <input type="checkbox" id="chk-breath" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item" id="breath-pattern-container">
+          <div class="setting-label">呼吸パターン / Breath Pattern</div>
+          <div class="options-grid" id="breath-pattern-options">
+            <button class="btn-option active" data-pattern="coherent">コヒーレント<span class="en-sub">Coherent</span></button>
+            <button class="btn-option" data-pattern="478">4-7-8呼吸<span class="en-sub">4-7-8</span></button>
+            <button class="btn-option" data-pattern="box">ボックス<span class="en-sub">Box</span></button>
+          </div>
+          <div id="breath-pattern-desc" style="font-size: 10px; color: #94a3b8; line-height: 1.4; margin-top: 6px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+            <!-- JavaScriptで切り替わる説明 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 一時停止画面（現在は使用しないため非表示） -->
     <div id="pause-screen" class="overlay hidden">
       <div class="overlay-content">

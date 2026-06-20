@@ -1465,6 +1465,144 @@ class GameEngine {
       }
     });
     document.getElementById('save-btn').addEventListener('click', () => this._saveGame());
+    this._initSettings();
+  }
+
+  _initSettings() {
+    const btnSettings = document.getElementById('btn-settings');
+    const settingsPanel = document.getElementById('settings-panel');
+    const btnSettingsClose = document.getElementById('btn-settings-close');
+
+    if (btnSettings && settingsPanel) {
+      btnSettings.addEventListener('click', () => {
+        settingsPanel.classList.add('active');
+        if (this.sound) this.sound.unlock();
+      });
+    }
+    if (btnSettingsClose && settingsPanel) {
+      btnSettingsClose.addEventListener('click', () => {
+        settingsPanel.classList.remove('active');
+        if (this.sound) this.sound.unlock();
+      });
+    }
+
+    // 設定パネルのスワイプ閉じ対応（右スワイプで閉じる）
+    if (settingsPanel) {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchCurrentX = 0;
+      let isSwiping = false;
+      let ignoreSwipe = false;
+
+      settingsPanel.addEventListener('touchstart', (e) => {
+        ignoreSwipe = false;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchCurrentX = touchStartX;
+        isSwiping = false;
+        settingsPanel.style.transition = 'none';
+      }, { passive: true });
+
+      settingsPanel.addEventListener('touchmove', (e) => {
+        if (ignoreSwipe) return;
+        const touch = e.touches[0];
+        touchCurrentX = touch.clientX;
+        const diffX = touchCurrentX - touchStartX;
+        const diffY = touch.clientY - touchStartY;
+        if (!isSwiping && diffX > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+          isSwiping = true;
+        }
+        if (isSwiping) {
+          const translateVal = Math.max(0, diffX);
+          settingsPanel.style.transform = `translateX(${translateVal}px)`;
+          if (e.cancelable) {
+            e.preventDefault();
+          }
+        }
+      }, { passive: false });
+
+      settingsPanel.addEventListener('touchend', () => {
+        if (ignoreSwipe) return;
+        settingsPanel.style.transition = '';
+        const diffX = touchCurrentX - touchStartX;
+        if (isSwiping && diffX > 100) {
+          settingsPanel.classList.remove('active');
+        }
+        settingsPanel.style.transform = '';
+        isSwiping = false;
+      }, { passive: true });
+
+      settingsPanel.addEventListener('touchcancel', () => {
+        settingsPanel.style.transition = '';
+        settingsPanel.style.transform = '';
+        isSwiping = false;
+        ignoreSwipe = false;
+      }, { passive: true });
+    }
+
+    const updateBreathPatternUI = () => {
+      const descEl = document.getElementById('breath-pattern-desc');
+      const container = document.getElementById('breath-pattern-container');
+      if (container) {
+        container.style.display = this.breathGuideEnabled ? '' : 'none';
+      }
+      if (descEl) {
+        let desc = '';
+        if (this.breathPattern === 'coherent') {
+          desc = '<strong>【コヒーレント呼吸】吸う5秒 / 吐く5秒</strong><br>心拍と呼吸の周期を同調させ、自律神経のバランスを整えます。最も深いリラクゼーションをもたらす基本の呼吸法です。';
+        } else if (this.breathPattern === '478') {
+          desc = '<strong>【4-7-8呼吸法】吸う4秒 / 止める7秒 / 吐く8秒</strong><br>神経系を強力に鎮静させます。余計な思考を遮断し、強い不安の解消や安眠・睡眠導入に極めて効果的です。';
+        } else if (this.breathPattern === 'box') {
+          desc = '<strong>【ボックス呼吸】吸う4秒 / 止める4秒 / 吐く4秒 / 止める4秒</strong><br>緊張をほぐしながらも、意識をクリアに保ちます。自律神経をリセットし、高い集中力を引き出します。';
+        }
+        descEl.innerHTML = desc;
+      }
+    };
+
+    const chkBreath = document.getElementById('chk-breath');
+    if (chkBreath) {
+      chkBreath.checked = this.breathGuideEnabled;
+      chkBreath.addEventListener('change', (e) => {
+        this.breathGuideEnabled = e.target.checked;
+        const breathGuide = document.getElementById('breath-guide');
+        if (breathGuide) {
+          if (this.breathGuideEnabled && this.gameStarted && !this.paused) {
+            breathGuide.classList.add('visible');
+          } else {
+            breathGuide.classList.remove('visible');
+          }
+        }
+        updateBreathPatternUI();
+        if (this.sound) this.sound.unlock();
+      });
+    }
+
+    const patternButtons = document.querySelectorAll('#breath-pattern-options .btn-option');
+    patternButtons.forEach(btn => {
+      const setPattern = () => {
+        patternButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.breathPattern = btn.getAttribute('data-pattern');
+        this.breathCycleTime = 0; // 切り替え時にサイクルを最初からやり直す
+        this.breathState = ''; // ステート変更を強制トリガー
+        updateBreathPatternUI();
+        if (this.sound) this.sound.unlock();
+      };
+      btn.addEventListener('click', setPattern);
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        setPattern();
+      }, { passive: false });
+    });
+
+    // 初期起動時のUI同期
+    updateBreathPatternUI();
+    const activeBtn = Array.from(patternButtons).find(b => b.getAttribute('data-pattern') === this.breathPattern);
+    if (activeBtn) {
+      patternButtons.forEach(b => b.classList.remove('active'));
+      activeBtn.classList.add('active');
+    }
   }
 
   _createCursorTrail(x, y) {
