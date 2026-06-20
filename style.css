@@ -472,9 +472,10 @@ body.game-active #gravity-cursor {
     height: 48px;
   }
 
-  /* HUD（右上情報）の縮小と位置の最適化 */
+  /* HUD（情報表示）の縮小と下部への移動 */
   #hud {
-    top: calc(10px + env(safe-area-inset-top));
+    top: auto;
+    bottom: calc(15px + env(safe-area-inset-bottom));
     right: 12px;
     min-width: 140px;
     padding: 8px 12px;
@@ -495,9 +496,10 @@ body.game-active #gravity-cursor {
     font-size: 11px;
   }
 
-  /* 操作パネル（左上）の縮小と位置の最適化 */
+  /* 操作パネル（左上）を下部へ移動 */
   .control-panel {
-    top: calc(10px + env(safe-area-inset-top));
+    top: auto;
+    bottom: calc(15px + env(safe-area-inset-bottom));
     left: 12px;
     gap: 6px;
   }
@@ -737,7 +739,7 @@ body.game-active .app-header {
 
 @media (max-width: 480px) {
   .app-header {
-    top: 40px; /* 上部の絶対配置ボタンやセーフエリアと重ならないように調整 */
+    top: calc(15px + env(safe-area-inset-top)); /* 画面上部から程よいマージンとセーフエリアで綺麗に配置 */
   }
   .app-header .subtitle {
     display: none; /* スペース確保のためサブタイトルを非表示にする */
