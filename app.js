@@ -1298,6 +1298,7 @@ class GameEngine {
     this.breathState = 'inhale';
     this.breathPattern = 'coherent'; // 'coherent' | '478' | 'box'
     this.lastBreathUpdateTime = 0;
+    this.langMode = 'both'; // 'both' | 'ja' | 'en'
 
     this._resize();
     this._bindEvents();
@@ -1569,15 +1570,27 @@ class GameEngine {
         container.style.display = this.breathGuideEnabled ? '' : 'none';
       }
       if (descEl) {
-        let desc = '';
+        let descJa = '';
+        let descEn = '';
+
         if (this.breathPattern === 'coherent') {
-          desc = '<strong>【コヒーレント呼吸】吸う5秒 / 吐く5秒</strong><br>心拍と呼吸の周期を同調させ、自律神経のバランスを整えます。最も深いリラクゼーションをもたらす基本の呼吸法です。';
+          descJa = '<strong>【コヒーレント呼吸】吸う5秒 / 吐く5秒</strong><br>心拍と呼吸の周期を同調させ、自律神経のバランスを整えます。最も深いリラクゼーションをもたらす基本の呼吸法です。';
+          descEn = '<strong>[Coherent Breathing] Inhale 5s / Exhale 5s</strong><br>Synchronizes heart rate and breathing cycles to balance the autonomic nervous system. The fundamental method for deepest relaxation.';
         } else if (this.breathPattern === '478') {
-          desc = '<strong>【4-7-8呼吸法】吸う4秒 / 止める7秒 / 吐く8秒</strong><br>神経系を強力に鎮静させます。余計な思考を遮断し、強い不安の解消や安眠・睡眠導入に極めて効果的です。';
+          descJa = '<strong>【4-7-8呼吸法】吸う4秒 / 止める7秒 / 吐く8秒</strong><br>神経系を強力に鎮静させます。余計な思考を遮断し、強い不安の解消や安眠・睡眠導入に極めて効果的です。';
+          descEn = '<strong>[4-7-8 Breathing] Inhale 4s / Hold 7s / Exhale 8s</strong><br>Strongly calms the nervous system. Shuts down overthinking, highly effective for anxiety relief and promoting sound sleep.';
         } else if (this.breathPattern === 'box') {
-          desc = '<strong>【ボックス呼吸】吸う4秒 / 止める4秒 / 吐く4秒 / 止める4秒</strong><br>緊張をほぐしながらも、意識をクリアに保ちます。自律神経をリセットし、高い集中力を引き出します。';
+          descJa = '<strong>【ボックス呼吸】吸う4秒 / 止める4秒 / 吐く4秒 / 止める4秒</strong><br>緊張をほぐしながらも、意識をクリアに保ちます。自律神経をリセットし、高い集中力を引き出します。';
+          descEn = '<strong>[Box Breathing] Inhale 4s / Hold 4s / Exhale 4s / Hold 4s</strong><br>Relieves tension while keeping the mind sharp and clear. Resets the autonomic nervous system to bring out high focus.';
         }
-        descEl.innerHTML = desc;
+
+        if (this.langMode === 'ja') {
+          descEl.innerHTML = descJa;
+        } else if (this.langMode === 'en') {
+          descEl.innerHTML = descEn;
+        } else {
+          descEl.innerHTML = `${descJa}<br><span style="display:block; margin-top: 6px; opacity: 0.8; font-size: 9px;">${descEn}</span>`;
+        }
       }
     };
 
@@ -1617,7 +1630,49 @@ class GameEngine {
       }, { passive: false });
     });
 
+    // 言語モードの制御
+    const langButtons = document.querySelectorAll('#lang-options .btn-option');
+    const updateLangUI = (lang) => {
+      this.langMode = lang;
+      localStorage.setItem('lang_mode', lang);
+
+      // bodyのクラスを更新
+      document.body.classList.remove('lang-mode-both', 'lang-mode-ja', 'lang-mode-en');
+      document.body.classList.add(`lang-mode-${lang}`);
+
+      // ボタンのactiveクラスを更新
+      langButtons.forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // 呼吸テキスト表示のリフレッシュを強制トリガー
+      this.breathState = '';
+
+      // 呼吸パターン説明文の言語切替
+      updateBreathPatternUI();
+    };
+
+    langButtons.forEach(btn => {
+      const setLang = () => {
+        const lang = btn.getAttribute('data-lang');
+        updateLangUI(lang);
+        if (this.sound) this.sound.unlock();
+      };
+      btn.addEventListener('click', setLang);
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        setLang();
+      }, { passive: false });
+    });
+
     // 初期起動時のUI同期
+    const savedLang = localStorage.getItem('lang_mode') || 'both';
+    updateLangUI(savedLang);
+
     updateBreathPatternUI();
     const activeBtn = Array.from(patternButtons).find(b => b.getAttribute('data-pattern') === this.breathPattern);
     if (activeBtn) {
@@ -2142,7 +2197,13 @@ class GameEngine {
     }
     if (textEl && this.breathState !== state) {
       this.breathState = state;
-      textEl.innerHTML = `${labelJp}<br><span class="en-sub">${labelEn}</span>`;
+      if (this.langMode === 'ja') {
+        textEl.innerHTML = labelJp;
+      } else if (this.langMode === 'en') {
+        textEl.innerHTML = labelEn;
+      } else {
+        textEl.innerHTML = `${labelJp}<br><span class="en-sub">${labelEn}</span>`;
+      }
       
       textEl.style.transition = 'none';
       textEl.style.opacity = '0';

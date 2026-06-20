@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="lang-mode-both">
   <!-- iOSスワイプバック防止用のスクロールラッパー -->
   <div id="app-wrapper">
     <!-- iOSスワイプバック防止用のスクロールダミー要素 -->
@@ -28,15 +28,23 @@
 
     <!-- プレイ画面ヘッダー（元祖脳リフレクソから移植） -->
     <header class="app-header">
-      <h1 class="logo">脳<span>リフレクソ</span><span class="logo-ver">2</span><span class="logo-en">Nebula Garden / 青雲庭園</span></h1>
-      <p class="subtitle">静かな宇宙で、迷子の小惑星をあなたの星へ引き寄せてください。<br><span class="en-text">Please guide the lost asteroids to your planet in the quiet universe.</span></p>
+      <h1 class="logo"><span class="lang-ja">脳<span>リフレクソ</span></span><span class="logo-ver">2</span><span class="logo-en"><span class="lang-divider"> / </span><span class="lang-en">Nebula Garden</span><span class="lang-divider"> / </span><span class="lang-ja">青雲庭園</span></span></h1>
+      <p class="subtitle">
+        <span class="lang-ja">静かな宇宙で、迷子の小惑星をあなたの星へ引き寄せてください。</span>
+        <span class="lang-divider"><br></span>
+        <span class="lang-en">Please guide the lost asteroids to your planet in the quiet universe.</span>
+      </p>
     </header>
 
     <!-- 呼吸ガイド (元祖脳リフレクソから移植) -->
     <div id="breath-guide" class="breath-guide">
       <div class="breath-ring"></div>
       <div class="breath-ring-inner"></div>
-      <div class="breath-text" id="breath-text">ゆっくり呼吸を合わせましょう<br><span class="en-sub">Gently match your breath</span></div>
+      <div class="breath-text" id="breath-text">
+        <span class="lang-ja">ゆっくり呼吸を合わせましょう</span>
+        <span class="lang-divider"><br></span>
+        <span class="lang-en">Gently match your breath</span>
+      </div>
     </div>
 
     <!-- 引力カーソル（マウス/タッチに追従する光の輪） -->
@@ -48,22 +56,38 @@
     <!-- HUD（右上情報パネル） -->
     <div id="hud">
       <div class="hud-row">
-        <span class="hud-label">あなたの星 / Your Planet</span>
+        <span class="hud-label">
+          <span class="lang-ja">あなたの星</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Your Planet</span>
+        </span>
         <span id="planet-size-display" class="hud-value">✦</span>
       </div>
       <div class="hud-row">
-        <span class="hud-label">引き寄せた小惑星 / Asteroids Attracted</span>
+        <span class="hud-label">
+          <span class="lang-ja">引き寄せた小惑星</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Asteroids Attracted</span>
+        </span>
         <span id="rock-count-display" class="hud-value">0</span>
       </div>
       <div class="hud-row">
-        <span class="hud-label">経過時間 / Elapsed Time</span>
+        <span class="hud-label">
+          <span class="lang-ja">経過時間</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Elapsed Time</span>
+        </span>
         <span id="time-display" class="hud-value">0:00</span>
       </div>
     </div>
 
     <!-- 操作パネル（左上） -->
     <div id="control-panel" class="control-panel hidden">
-      <button id="save-btn" class="control-btn save-btn">保存して終了 / Save & Quit</button>
+      <button id="save-btn" class="control-btn save-btn">
+        <span class="lang-ja">保存して終了</span>
+        <span class="lang-divider"> / </span>
+        <span class="lang-en">Save & Quit</span>
+      </button>
     </div>
 
     <!-- 設定ボタン (歯車) -->
@@ -76,7 +100,11 @@
         <h3>設定 / Settings</h3>
         
         <div class="setting-item toggle-item night-mode-item" style="border-top: none; padding-top: 0; margin-top: 0;">
-          <span class="setting-label">ナイトモード / Night Mode</span>
+          <span class="setting-label">
+            <span class="lang-ja">ナイトモード</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Night Mode</span>
+          </span>
           <label class="switch">
             <input type="checkbox" id="chk-night-mode">
             <span class="switch-slider"></span>
@@ -84,7 +112,11 @@
         </div>
 
         <div class="setting-item toggle-item">
-          <span class="setting-label">呼吸ガイド / Breath Guide</span>
+          <span class="setting-label">
+            <span class="lang-ja">呼吸ガイド</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Breath Guide</span>
+          </span>
           <label class="switch">
             <input type="checkbox" id="chk-breath" checked>
             <span class="switch-slider"></span>
@@ -92,7 +124,11 @@
         </div>
 
         <div class="setting-item" id="breath-pattern-container">
-          <div class="setting-label">呼吸パターン / Breath Pattern</div>
+          <div class="setting-label">
+            <span class="lang-ja">呼吸パターン</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Breath Pattern</span>
+          </div>
           <div class="options-grid" id="breath-pattern-options">
             <button class="btn-option active" data-pattern="coherent">コヒーレント<span class="en-sub">Coherent</span></button>
             <button class="btn-option" data-pattern="478">4-7-8呼吸<span class="en-sub">4-7-8</span></button>
@@ -102,42 +138,79 @@
             <!-- JavaScriptで切り替わる説明 -->
           </div>
         </div>
+
+        <div class="setting-item">
+          <span class="setting-label">
+            <span class="lang-ja">言語</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Language</span>
+          </span>
+          <div class="options-grid" id="lang-options">
+            <button class="btn-option active" data-lang="both">Bilingual</button>
+            <button class="btn-option" data-lang="ja">日本語</button>
+            <button class="btn-option" data-lang="en">English</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 一時停止画面（現在は使用しないため非表示） -->
     <div id="pause-screen" class="overlay hidden">
       <div class="overlay-content">
-        <h2 class="game-title" style="font-size: 26px; margin-bottom: 12px;">一時停止中 / Paused</h2>
+        <h2 class="game-title" style="font-size: 26px; margin-bottom: 12px;">
+          <span class="lang-ja">一時停止中</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Paused</span>
+        </h2>
         <p class="game-desc" style="margin-bottom: 28px;">
-           ゲームは一時停止されています。<br>「続ける」で再開します。
-          <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">The game is paused. Select resume to continue.</span>
+          <span class="lang-ja">ゲームは一時停止されています。<br>「続ける」で再開します。</span>
+          <span class="lang-divider"><br></span>
+          <span class="lang-en">The game is paused. Select resume to continue.</span>
         </p>
-        <button id="resume-btn" class="action-btn">続ける / Resume</button>
+        <button id="resume-btn" class="action-btn">
+          <span class="lang-ja">続ける</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Resume</span>
+        </button>
       </div>
     </div>
 
     <!-- 開始画面 -->
     <div id="start-screen" class="overlay">
       <div class="overlay-content">
-        <h1 class="game-title">脳リフレクソ2</h1>
-        <p class="game-subtitle">星雲庭園 / Nebula Garden</p>
+        <h1 class="game-title"><span class="lang-ja">脳リフレクソ2</span><span class="lang-divider"> / </span><span class="lang-en">Brain Reflexo 2</span></h1>
+        <p class="game-subtitle">
+          <span class="lang-ja">星雲庭園</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Nebula Garden</span>
+        </p>
         <p class="game-desc">
-          静かな宇宙で、<br>迷子の小惑星をあなたの星へ<br>引き寄せてください。
-          <br><span style="font-size: 11px; opacity: 0.8; display: block; margin-top: 8px;">Please guide the lost asteroids to your planet in the quiet universe.</span>
+          <span class="lang-ja">静かな宇宙で、<br>迷子の小惑星をあなたの星へ<br>引き寄せてください。</span>
+          <span class="lang-divider"><br></span>
+          <span class="lang-en">Please guide the lost asteroids to your planet in the quiet universe.</span>
         </p>
         <p class="game-hint">
-          カーソル（指）を小惑星に近づけるだけ
-          <br><span style="font-size: 10px; opacity: 0.8; display: block; margin-top: 4px;">Just move the cursor (or finger) close to the asteroids</span>
+          <span class="lang-ja">カーソル（指）を小惑星に近づけるだけ</span>
+          <span class="lang-divider"><br></span>
+          <span class="lang-en">Just move the cursor (or finger) close to the asteroids</span>
         </p>
         <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-          <button id="start-btn" class="action-btn">新しくはじめる / New Game</button>
-          <button id="resume-save-btn" class="action-btn hidden">続きからはじめる / Continue</button>
+          <button id="start-btn" class="action-btn">
+            <span class="lang-ja">新しくはじめる</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">New Game</span>
+          </button>
+          <button id="resume-save-btn" class="action-btn hidden">
+            <span class="lang-ja">続きからはじめる</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Continue</span>
+          </button>
         </div>
         <!-- 音声トラブルシューティングの追加 -->
         <div style="font-size: 10px; color: var(--ui-text-soft); margin-top: 20px; line-height: 1.5; border-top: 1px dashed var(--ui-border); padding-top: 12px; width: 100%;">
-          🔊 音が出ない場合は、本体側面の「消音（マナー)モード」をオフにし、音量を上げてください。<br>
-          <span style="font-size: 9px; opacity: 0.8;">If there is no sound, please disable silent mode on your iPhone and turn up the volume.</span>
+          <span class="lang-ja">🔊 音が出ない場合は、本体側面の「消音（マナー)モード」をオフにし、音量を上げてください。</span>
+          <span class="lang-divider"><br></span>
+          <span class="lang-en">🔊 If there is no sound, please disable silent mode on your iPhone and turn up the volume.</span>
         </div>
       </div>
     </div>
@@ -145,13 +218,30 @@
     <!-- リザルト画面 -->
     <div id="result-screen" class="overlay hidden">
       <div class="overlay-content">
-        <p id="result-title" class="result-label">今日もお疲れ様でした / Thank you for your time today</p>
+        <p id="result-title" class="result-label">
+          <span class="lang-ja">今日もお疲れ様でした</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Thank you for your time today</span>
+        </p>
         <div id="result-planet-visual"></div>
         <p class="result-score">
-          <span id="result-count">0</span><span class="result-unit"> 個の小惑星を導きました / asteroids guided</span>
+          <span id="result-count">0</span>
+          <span class="result-unit">
+            <span class="lang-ja"> 個の小惑星を導きました</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en"> asteroids guided</span>
+          </span>
         </p>
-        <p class="result-time-text">プレイ時間 / Play Time: <span id="result-time">0:00</span></p>
-        <button id="retry-btn" class="action-btn">もう一度育てる / Play Again</button>
+        <p class="result-time-text">
+          <span class="lang-ja">プレイ時間</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Play Time</span>: <span id="result-time">0:00</span>
+        </p>
+        <button id="retry-btn" class="action-btn">
+          <span class="lang-ja">もう一度育てる</span>
+          <span class="lang-divider"> / </span>
+          <span class="lang-en">Play Again</span>
+        </button>
       </div>
     </div>
 

@@ -1020,6 +1020,20 @@ body.night-mode::after {
   }
 }
 
+/* =============================================================
+   言語モード切り替え制御 (Language Mode Toggle)
+   ============================================================= */
+body.lang-mode-ja .lang-en,
+body.lang-mode-ja .lang-divider {
+  display: none !important;
+}
+
+body.lang-mode-en .lang-ja,
+body.lang-mode-en .lang-divider {
+  display: none !important;
+}
+
+
 
 
 
