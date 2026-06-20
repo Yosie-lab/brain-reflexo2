@@ -1286,7 +1286,7 @@ class GameEngine {
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
 
     this.lastShootingStarTime = Date.now();
-    this.nextShootingStarDelay = 10000 + Math.random() * 20000;
+    this.nextShootingStarDelay = 5000 + Math.random() * 10000; // 初回は5秒〜15秒の間
 
     // 瞑想用の静かな波紋（AmbientRipple）の間隔制御
     this.ambientRippleTimer = 0;
@@ -1661,7 +1661,7 @@ class GameEngine {
     if (now - this.lastShootingStarTime >= this.nextShootingStarDelay) {
       this.shootingStars.push(new ShootingStar(this.W, this.H));
       this.lastShootingStarTime = now;
-      this.nextShootingStarDelay = 10000 + Math.random() * 30000;
+      this.nextShootingStarDelay = 6000 + Math.random() * 14000; // 次回以降は6秒〜20秒の間
     }
 
     for (let i = this.shootingStars.length - 1; i >= 0; i--) {
