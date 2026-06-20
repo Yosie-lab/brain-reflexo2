@@ -1292,6 +1292,13 @@ class GameEngine {
     this.ambientRippleTimer = 0;
     this.nextAmbientRippleInterval = 1500 + Math.random() * 2000; // 初回は1.5〜3.5秒後
 
+    // 呼吸ガイドの管理
+    this.breathGuideEnabled = true;
+    this.breathCycleTime = 0;
+    this.breathState = 'inhale';
+    this.breathPattern = 'coherent'; // 'coherent' | '478' | 'box'
+    this.lastBreathUpdateTime = 0;
+
     this._resize();
     this._bindEvents();
 
@@ -1527,6 +1534,8 @@ class GameEngine {
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
     this.shootingStarElapsed = 0;
     this.nextShootingStarDelay = 5000 + Math.random() * 10000; // 初回は5秒〜15秒の間
+    this.lastBreathUpdateTime = 0;
+    this.breathCycleTime = 0;
 
     const count = Math.floor((this.W * this.H) / CONFIG.STAR_COUNT_RATIO);
     this.stars = Array.from({ length: count },
@@ -1650,6 +1659,7 @@ class GameEngine {
 
     this._update(dt, timestamp);
     this._draw();
+    this._updateBreathGuide(timestamp);
 
     requestAnimationFrame(ts => this._loop(ts));
   }
@@ -1805,6 +1815,166 @@ class GameEngine {
       if (this.asteroids.length < CONFIG.ASTEROID_MAX_COUNT) {
         this.asteroids.push(new Asteroid(this.W, this.H, this.scale, this.stage));
       }
+    }
+  }
+
+  _easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  }
+
+  _updateBreathGuide(timestamp) {
+    const breathGuide = document.getElementById('breath-guide');
+    if (!breathGuide) return;
+    
+    // ゲームが開始されていて一時停止中でないときに表示
+    if (!this.gameStarted || this.paused || !this.breathGuideEnabled) {
+      breathGuide.classList.remove('visible');
+      return;
+    }
+    
+    breathGuide.classList.add('visible');
+    
+    if (!this.lastBreathUpdateTime) {
+      this.lastBreathUpdateTime = timestamp;
+    }
+    const dt = timestamp - this.lastBreathUpdateTime;
+    this.lastBreathUpdateTime = timestamp;
+    
+    let cycleDuration = 10000; // デフォルト (coherent)
+    if (this.breathPattern === '478') {
+      cycleDuration = 19000;
+    } else if (this.breathPattern === 'box') {
+      cycleDuration = 16000;
+    }
+
+    this.breathCycleTime = (this.breathCycleTime + dt) % cycleDuration;
+    
+    const ring = document.querySelector('.breath-ring');
+    const ringInner = document.querySelector('.breath-ring-inner');
+    const textEl = document.getElementById('breath-text');
+    
+    let scale = 1.0;
+    let state = 'inhale';
+    let labelJp = '';
+    let labelEn = '';
+    let progress = 0;
+    
+    // パターンごとのステートとスケール判定
+    if (this.breathPattern === '478') {
+      if (this.breathCycleTime < 4000) {
+        state = 'inhale';
+        progress = this.breathCycleTime / 4000;
+        scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吸って';
+        labelEn = 'Inhale';
+      } else if (this.breathCycleTime < 11000) {
+        state = 'hold';
+        progress = (this.breathCycleTime - 4000) / 7000;
+        scale = 1.6;
+        labelJp = '止めて';
+        labelEn = 'Hold';
+      } else {
+        state = 'exhale';
+        progress = (this.breathCycleTime - 11000) / 8000;
+        scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吐いて';
+        labelEn = 'Exhale';
+      }
+    } else if (this.breathPattern === 'box') {
+      if (this.breathCycleTime < 4000) {
+        state = 'inhale';
+        progress = this.breathCycleTime / 4000;
+        scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吸って';
+        labelEn = 'Inhale';
+      } else if (this.breathCycleTime < 8000) {
+        state = 'hold'; // 満ちた状態でのキープ
+        progress = (this.breathCycleTime - 4000) / 4000;
+        scale = 1.6;
+        labelJp = '止めて';
+        labelEn = 'Hold';
+      } else if (this.breathCycleTime < 12000) {
+        state = 'exhale';
+        progress = (this.breathCycleTime - 8000) / 4000;
+        scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吐いて';
+        labelEn = 'Exhale';
+      } else {
+        state = 'hold-empty'; // 空の状態でのキープ
+        progress = (this.breathCycleTime - 12000) / 4000;
+        scale = 0.9;
+        labelJp = '止めて';
+        labelEn = 'Hold';
+      }
+    } else { // coherent
+      if (this.breathCycleTime < 5000) {
+        state = 'inhale';
+        progress = this.breathCycleTime / 5000;
+        scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吸って';
+        labelEn = 'Inhale';
+      } else {
+        state = 'exhale';
+        progress = (this.breathCycleTime - 5000) / 5000;
+        scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
+        labelJp = '吐いて';
+        labelEn = 'Exhale';
+      }
+    }
+    
+    // カラーブレンド (Teal -> Amber -> Indigo -> Purple)
+    let r = 129, g = 195, b = 215;
+    let fill = 0.05;
+    let glow = 0.1;
+    
+    if (state === 'inhale') {
+      fill = 0.02 + 0.16 * this._easeInOutQuad(progress);
+      glow = 0.1 + scale * 0.15;
+      const startColor = this.breathPattern === 'box' ? {r: 139, g: 92, b: 246} : {r: 99, g: 102, b: 241};
+      r = Math.round(startColor.r + (45 - startColor.r) * progress);
+      g = Math.round(startColor.g + (212 - startColor.g) * progress);
+      b = Math.round(startColor.b + (191 - startColor.b) * progress);
+    } else if (state === 'hold') {
+      fill = 0.18;
+      glow = 0.35;
+      r = 251;
+      g = 191;
+      b = 36;
+    } else if (state === 'exhale') {
+      fill = 0.18 - 0.16 * this._easeInOutQuad(progress);
+      glow = 0.05 + scale * 0.2;
+      const startColor = (this.breathPattern === 'coherent') ? {r: 45, g: 212, b: 191} : {r: 251, g: 191, b: 36};
+      r = Math.round(startColor.r + (99 - startColor.r) * progress);
+      g = Math.round(startColor.g + (102 - startColor.g) * progress);
+      b = Math.round(startColor.b + (241 - startColor.b) * progress);
+    } else if (state === 'hold-empty') {
+      fill = 0.02;
+      glow = 0.08;
+      r = Math.round(99 + (139 - 99) * progress);
+      g = Math.round(102 + (92 - 102) * progress);
+      b = Math.round(241 + (246 - 241) * progress);
+    }
+    
+    if (ring) {
+      ring.style.transform = `scale(${scale})`;
+      ring.style.setProperty('--breath-color', `${r}, ${g}, ${b}`);
+      ring.style.setProperty('--breath-fill', fill);
+      ring.style.setProperty('--breath-glow', glow);
+      ring.style.boxShadow = `0 0 ${25 + scale * 20}px rgba(${r}, ${g}, ${b}, ${glow})`;
+    }
+    if (ringInner) {
+      ringInner.style.transform = `scale(${scale * 0.95}) rotate(${timestamp * 0.0005}rad)`;
+      ringInner.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.25)`;
+    }
+    if (textEl && this.breathState !== state) {
+      this.breathState = state;
+      textEl.innerHTML = `${labelJp}<br><span class="en-sub">${labelEn}</span>`;
+      
+      textEl.style.transition = 'none';
+      textEl.style.opacity = '0';
+      void textEl.offsetWidth; // reflow
+      textEl.style.transition = 'opacity 0.5s ease';
+      textEl.style.opacity = '1';
     }
   }
 

@@ -602,4 +602,75 @@ body.game-active #gravity-cursor {
   visibility: hidden;
 }
 
+/* =============================================================
+   呼吸ガイド (Zen Breath Guide)
+   ============================================================= */
+.breath-guide {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5; /* キャンバスの手前、UI（HUD）の奥 */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.breath-guide.visible {
+    opacity: 0.75;
+}
+
+/* 脈動する呼吸リング */
+.breath-ring {
+    --breath-color: 129, 195, 215;
+    --breath-fill: 0.05;
+    --breath-glow: 0.1;
+    position: absolute;
+    width: 220px; /* 月（最大径180px相当）を包み込める大きさ */
+    height: 220px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(var(--breath-color), 0.45);
+    background: radial-gradient(circle, rgba(var(--breath-color), var(--breath-fill)) 0%, rgba(var(--breath-color), 0) 70%);
+    box-shadow: 0 0 35px rgba(var(--breath-color), var(--breath-glow));
+    transform: scale(1.0);
+    will-change: transform, border-color, box-shadow;
+    transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.breath-ring-inner {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 0.5px dashed rgba(255, 255, 255, 0.15);
+    transform: scale(1.0);
+    transition: border-color 0.4s ease;
+}
+
+.breath-text {
+    position: absolute;
+    top: 140px;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--ui-text);
+    text-align: center;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    transition: color 0.5s ease;
+}
+
+.breath-text .en-sub {
+    display: block;
+    font-size: 8px;
+    font-weight: 300;
+    opacity: 0.75;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
 
