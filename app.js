@@ -1055,8 +1055,17 @@ class AmbientRipple {
     this.maxRadius = rand(90, 160) * scale;
     // 元祖と同じ設定：スピード（1.5〜2.3）
     this.speed = rand(1.5, 2.3) * scale;
-    // 元祖と同じ設定：水色〜青系統の色相（185〜210）
-    this.hue = rand(185, 210);
+    
+    // センスの良いクール系カラーバリエーション
+    // 元祖の水色〜青に加え、冷涼なミント/ティール、知的なコバルト、静寂なインディゴ/バイオレット
+    const coolHues = [
+      rand(185, 210), // 元祖の水色〜シアン系
+      rand(140, 165), // クールなミントグリーン/ディープティール系
+      rand(215, 235), // 知的なコバルトブルー系
+      rand(250, 275)  // 静寂なインディゴ/バイオレット系
+    ];
+    this.hue = coolHues[Math.floor(Math.random() * coolHues.length)];
+    
     this.r = 0;
     this.alpha = 0.8;
     this.alive = true;
@@ -1739,8 +1748,8 @@ class GameEngine {
       }
 
       // 瞑想用の静かな背景波紋（元祖の脳リフレクソの波紋）の自動生成
-      // 毎フレーム 1.6% (60fps換算) の確率でランダムに発生させる（確実に出現を視認できるよう、確率を1.6%に引き上げ）
-      const spawnChance = 0.016 * (dt / 16.666);
+      // 瞑想を促すため、毎フレーム 0.003 (60fps換算で0.3%) の低い確率で穏やかに自動発生させる
+      const spawnChance = 0.003 * (dt / 16.666);
       if (Math.random() < spawnChance) {
         const margin = 50 * this.scale;
         const rx = rand(margin, this.W - margin);
