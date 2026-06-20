@@ -42,10 +42,18 @@ const CONFIG = {
   TONE_DURATION: 0.18,                // s（音の発音時間）
 };
 
-// 肯定的フィードバックワード
+// 肯定的フィードバックワード（多言語対応）
 const FEEDBACK_WORDS = [
-  'ほっ… / Whew...', 'やさしい / Gentle', 'きもちいい / Relaxing', 'いいね / Nice', 'すっきり / Clear',
-  '癒される / Soothing', 'そっと / Softly', 'つながった / Connected', '✦', 'しずか / Silent',
+  { ja: 'ほっ…', en: 'Whew...' },
+  { ja: 'やさしい', en: 'Gentle' },
+  { ja: 'きもちいい', en: 'Relaxing' },
+  { ja: 'いいね', en: 'Nice' },
+  { ja: 'すっきり', en: 'Clear' },
+  { ja: '癒される', en: 'Soothing' },
+  { ja: 'そっと', en: 'Softly' },
+  { ja: 'つながった', en: 'Connected' },
+  { ja: '✦', en: '✦' },
+  { ja: 'しずか', en: 'Silent' },
 ];
 
 // 脳リフレクソの星の色
@@ -2010,7 +2018,15 @@ class GameEngine {
       this.planet.x, this.planet.y, this.planet.radius
     ));
 
-    const word = FEEDBACK_WORDS[Math.floor(Math.random() * FEEDBACK_WORDS.length)];
+    const wordObj = FEEDBACK_WORDS[Math.floor(Math.random() * FEEDBACK_WORDS.length)];
+    let word = '';
+    if (this.langMode === 'ja') {
+      word = wordObj.ja;
+    } else if (this.langMode === 'en') {
+      word = wordObj.en;
+    } else {
+      word = (wordObj.ja === wordObj.en) ? wordObj.ja : `${wordObj.ja} / ${wordObj.en}`;
+    }
     const tx = this.planet.x + rand(-60, 60);
     const ty = this.planet.y + rand(-80, -20);
     new FloatingText(tx, ty, word);
