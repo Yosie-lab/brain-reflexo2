@@ -107,7 +107,20 @@
         <button id="btn-settings-close" class="btn-settings-close" aria-label="閉じる / Close">&times;</button>
         <h3>設定 / Settings</h3>
         
-        <div class="setting-item toggle-item night-mode-item" style="border-top: none; padding-top: 0; margin-top: 0;">
+        <div class="setting-item" style="border-top: none; padding-top: 0; margin-top: 0;">
+          <span class="setting-label">
+            <span class="lang-ja">言語</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Language</span>
+          </span>
+          <div class="options-grid" id="lang-options">
+            <button class="btn-option active" data-lang="both">Bilingual</button>
+            <button class="btn-option" data-lang="ja">日本語</button>
+            <button class="btn-option" data-lang="en">English</button>
+          </div>
+        </div>
+
+        <div class="setting-item toggle-item night-mode-item">
           <span class="setting-label">
             <span class="lang-ja">ナイトモード</span>
             <span class="lang-divider"> / </span>
@@ -138,25 +151,21 @@
             <span class="lang-en">Breath Pattern</span>
           </div>
           <div class="options-grid" id="breath-pattern-options">
-            <button class="btn-option active" data-pattern="coherent">コヒーレント<span class="en-sub">Coherent</span></button>
-            <button class="btn-option" data-pattern="478">4-7-8呼吸<span class="en-sub">4-7-8</span></button>
-            <button class="btn-option" data-pattern="box">ボックス<span class="en-sub">Box</span></button>
+            <button class="btn-option active" data-pattern="coherent">
+              <span class="lang-ja">コヒーレント</span>
+              <span class="lang-en en-sub">Coherent</span>
+            </button>
+            <button class="btn-option" data-pattern="478">
+              <span class="lang-ja">4-7-8呼吸</span>
+              <span class="lang-en en-sub">4-7-8</span>
+            </button>
+            <button class="btn-option" data-pattern="box">
+              <span class="lang-ja">ボックス</span>
+              <span class="lang-en en-sub">Box</span>
+            </button>
           </div>
           <div id="breath-pattern-desc" style="font-size: 10px; color: #94a3b8; line-height: 1.4; margin-top: 6px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 8px;">
             <!-- JavaScriptで切り替わる説明 -->
-          </div>
-        </div>
-
-        <div class="setting-item">
-          <span class="setting-label">
-            <span class="lang-ja">言語</span>
-            <span class="lang-divider"> / </span>
-            <span class="lang-en">Language</span>
-          </span>
-          <div class="options-grid" id="lang-options">
-            <button class="btn-option active" data-lang="both">Bilingual</button>
-            <button class="btn-option" data-lang="ja">日本語</button>
-            <button class="btn-option" data-lang="en">English</button>
           </div>
         </div>
       </div>

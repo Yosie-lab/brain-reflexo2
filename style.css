@@ -1033,6 +1033,12 @@ body.lang-mode-en .lang-divider {
   display: none !important;
 }
 
+/* 英語単独モード時、オプションボタン内の英語サブタイトルの文字サイズと不透明度を調整して読みやすくする */
+body.lang-mode-en .btn-option .en-sub {
+  font-size: 11px;
+  opacity: 1;
+}
+
 
 
 

@@ -1269,6 +1269,7 @@ class GameEngine {
     this.mouse = { x: -1000, y: -1000 };
     this.touchStartX = -1;
     this.touchStartY = -1;
+    this.lastTouchTime = 0;
     this.stars = [];
     this.shootingStars = [];
     this.asteroids = [];
@@ -1387,6 +1388,9 @@ class GameEngine {
     }
 
     window.addEventListener('mousemove', e => {
+      // タッチ操作直後の遅延シミュレートマウスイベントを無視し、指が離れた場所に光るポイントが残るバグを防ぐ
+      if (performance.now() - this.lastTouchTime < 1200) return;
+
       if (this.running) {
         this.sound.init(); // マウス移動中も音声コンテキストがsuspendedになるのを防止
       }
@@ -1400,6 +1404,7 @@ class GameEngine {
     // ゲームプレイ中は preventDefault() を呼んで画面のスクロールや引っ張りを完全に防ぐ。
     // 非プレイ中（メニュー等）はスワイプバック防止トリックを生かすため通常処理にする。
     document.addEventListener('touchmove', e => {
+      this.lastTouchTime = performance.now();
       if (this.gameStarted && !this.paused) {
         if (e.cancelable) {
           e.preventDefault(); // iOS Safariの下部スワイプや画面バウンスを強力に防止
@@ -1416,6 +1421,7 @@ class GameEngine {
     }, { passive: false }); // preventDefault を呼ぶため passive: false に変更
 
     document.addEventListener('touchstart', e => {
+      this.lastTouchTime = performance.now();
       const t = e.touches[0];
       this.touchStartX = t.clientX;
       this.touchStartY = t.clientY;
@@ -1429,6 +1435,7 @@ class GameEngine {
     }, { passive: true }); // passive:true でブラウザのスクロール処理を妨げない
 
     window.addEventListener('touchend', () => {
+      this.lastTouchTime = performance.now();
       this.touchStartX = -1;
       this.touchStartY = -1;
       if (this.running) {
@@ -1442,6 +1449,7 @@ class GameEngine {
     });
 
     window.addEventListener('touchcancel', () => {
+      this.lastTouchTime = performance.now();
       this.touchStartX = -1;
       this.touchStartY = -1;
       this.cursor.style.opacity = '0';
