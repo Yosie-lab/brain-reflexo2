@@ -1412,6 +1412,7 @@ class GameEngine {
       this.touchStartY = t.clientY;
       this.mouse.x = t.clientX;
       this.mouse.y = t.clientY;
+      this._moveCursor(t.clientX, t.clientY); // タッチした瞬間にカーソルを移動させて表示
       this._createCursorTrail(t.clientX, t.clientY);
       if (this.running) {
         this.sound.init();
@@ -1424,6 +1425,20 @@ class GameEngine {
       if (this.running) {
         this.sound.init();
       }
+      // 指が離れたらカーソルを即座に非表示にし、吸着判定等もクリア
+      this.cursor.style.opacity = '0';
+      this.cursor.classList.remove('active', 'moving');
+      this.mouse.x = -1000;
+      this.mouse.y = -1000;
+    });
+
+    window.addEventListener('touchcancel', () => {
+      this.touchStartX = -1;
+      this.touchStartY = -1;
+      this.cursor.style.opacity = '0';
+      this.cursor.classList.remove('active', 'moving');
+      this.mouse.x = -1000;
+      this.mouse.y = -1000;
     });
 
     window.addEventListener('mousedown', () => {
