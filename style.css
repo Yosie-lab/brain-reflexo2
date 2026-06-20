@@ -715,15 +715,12 @@ body.game-active .app-header {
 }
 
 .logo-ver {
-  color: #f0d9b0; /* 暖かみのある月のようなゴールドで強調 */
-  font-weight: 900;
-  font-size: 1.15em;
-  margin-left: 4px;
-  font-style: italic;
+  color: #81c3d7; /* 元祖のテーマカラーである水色で調和 */
+  font-weight: 800;
+  font-size: 1.25em;
+  margin-left: 3px;
   display: inline-block;
-  text-shadow: 
-    0 0 8px rgba(240, 217, 176, 0.8),
-    0 0 18px rgba(240, 217, 176, 0.4);
+  text-shadow: 0 0 15px rgba(129, 195, 215, 0.5);
 }
 
 
