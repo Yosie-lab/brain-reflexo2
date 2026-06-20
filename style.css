@@ -993,6 +993,33 @@ body.game-active .app-header {
   }
 }
 
+/* =============================================================
+   ナイトモード (ブルーライトフィルター・明度調整)
+   ============================================================= */
+body.night-mode {
+  filter: sepia(0.2) brightness(0.88) contrast(0.97);
+}
+
+body.night-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(245, 158, 11, 0.03); /* マイルドな温かみのある琥珀色オーバーレイ */
+  pointer-events: none;
+  z-index: 999999;
+  transition: background-color 0.5s ease;
+}
+
+/* スマホ版（画面幅768px以下）の表示調整（眩しさを抑え、眼疲労を低減） */
+@media (max-width: 768px) {
+  body.night-mode #game-canvas {
+    filter: brightness(0.65) contrast(0.95);
+  }
+}
+
 
 
 

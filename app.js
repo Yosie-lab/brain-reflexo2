@@ -1486,6 +1486,27 @@ class GameEngine {
       });
     }
 
+    // ナイトモードのトグル制御
+    const chkNightMode = document.getElementById('chk-night-mode');
+    if (chkNightMode) {
+      const nightModeSaved = localStorage.getItem('night_mode_enabled') === 'true';
+      chkNightMode.checked = nightModeSaved;
+      if (nightModeSaved) {
+        document.body.classList.add('night-mode');
+      }
+
+      chkNightMode.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        localStorage.setItem('night_mode_enabled', enabled);
+        if (enabled) {
+          document.body.classList.add('night-mode');
+        } else {
+          document.body.classList.remove('night-mode');
+        }
+        if (this.sound) this.sound.unlock();
+      });
+    }
+
     // 設定パネルのスワイプ閉じ対応（右スワイプで閉じる）
     if (settingsPanel) {
       let touchStartX = 0;
