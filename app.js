@@ -1044,7 +1044,68 @@ class RainbowRippleEffect {
 }
 
 // ============================================================
-// class: TrailParticle（軌道の光の粒の波紋）
+// class: AmbientRipple（瞑想を誘う環境サークル波紋）
+// ============================================================
+class AmbientRipple {
+  constructor(x, y, scale = 1.0) {
+    this.x = x;
+    this.y = y;
+    this.scale = scale;
+    // 元祖の脳リフレクソと同じ設定：自動波紋サイズ（90〜160px相当）
+    this.maxRadius = rand(90, 160) * scale;
+    // 元祖と同じ設定：スピード（1.5〜2.3）
+    this.speed = rand(1.5, 2.3) * scale;
+    // 元祖と同じ設定：水色〜青系統の色相（185〜210）
+    this.hue = rand(185, 210);
+    this.r = 0;
+    this.alpha = 0.8;
+    this.alive = true;
+  }
+
+  update(dt) {
+    // 60fps（16.66ms）基準のスピード更新をdt比率でスケールして滑らかに更新
+    const timeFactor = dt / 16.666;
+    this.r += this.speed * timeFactor;
+    
+    // 元祖と同じアルファ減衰式
+    this.alpha = 0.8 * (1.0 - (this.r / this.maxRadius));
+    
+    if (this.r >= this.maxRadius || this.alpha <= 0) {
+      this.alive = false;
+    }
+  }
+
+  draw(ctx) {
+    if (this.alpha <= 0) return;
+    
+    ctx.save();
+    // 元祖と同じスクリーン合成モード
+    ctx.globalCompositeOperation = 'screen';
+
+    // 1. 主線の描画 (hsla、太さ 3.2px)
+    const color = `hsla(${this.hue}, 70%, 75%, ${this.alpha * 0.55})`;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3.2 * this.scale;
+    
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 2. 擬似的なグロー効果：外側に重ねる薄くて太い線 (太さ 6.4px)
+    const glowColor = `hsla(${this.hue}, 70%, 75%, ${this.alpha * 0.15})`;
+    ctx.strokeStyle = glowColor;
+    ctx.lineWidth = 6.4 * this.scale;
+    
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// class: TrailParticle（軌道の光 of 粒の波紋）
 // ============================================================
 class TrailParticle {
   constructor(x, y, scale = 1.0, stage = 1, isMoving = true) {
@@ -1217,6 +1278,10 @@ class GameEngine {
 
     this.lastShootingStarTime = Date.now();
     this.nextShootingStarDelay = 10000 + Math.random() * 20000;
+
+    // 瞑想用の静かな波紋（AmbientRipple）の間隔制御
+    this.ambientRippleTimer = 0;
+    this.nextAmbientRippleInterval = 1500 + Math.random() * 2000; // 初回は1.5〜3.5秒後
 
     this._resize();
     this._bindEvents();
@@ -1566,7 +1631,11 @@ class GameEngine {
 
   _loop(timestamp) {
     // running が false でも、メニュー背景描画のためにループを継続
-    const dt = timestamp - this.lastTimestamp;
+    let dt = timestamp - this.lastTimestamp;
+    if (isNaN(dt) || dt <= 0) {
+      dt = 16.666;
+    }
+    dt = Math.min(100, dt); // 初回や非アクティブ復帰時の巨大なdtによるエフェクト即死を防止
     this.lastTimestamp = timestamp;
     this.frame++;
 
@@ -1667,6 +1736,16 @@ class GameEngine {
         const p = this.trailParticles[i];
         p.update();
         if (!p.alive) this.trailParticles.splice(i, 1);
+      }
+
+      // 瞑想用の静かな背景波紋（元祖の脳リフレクソの波紋）の自動生成
+      // 毎フレーム 1.6% (60fps換算) の確率でランダムに発生させる（確実に出現を視認できるよう、確率を1.6%に引き上げ）
+      const spawnChance = 0.016 * (dt / 16.666);
+      if (Math.random() < spawnChance) {
+        const margin = 50 * this.scale;
+        const rx = rand(margin, this.W - margin);
+        const ry = rand(margin, this.H - margin);
+        this.effects.push(new AmbientRipple(rx, ry, this.scale));
       }
     }
 
