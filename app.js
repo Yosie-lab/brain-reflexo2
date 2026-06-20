@@ -1285,7 +1285,7 @@ class GameEngine {
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
 
-    this.lastShootingStarTime = Date.now();
+    this.shootingStarElapsed = 0;
     this.nextShootingStarDelay = 5000 + Math.random() * 10000; // 初回は5秒〜15秒の間
 
     // 瞑想用の静かな波紋（AmbientRipple）の間隔制御
@@ -1525,8 +1525,8 @@ class GameEngine {
     this.shootingStars = [];
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.ASTEROID_SPAWN_INTERVAL_BASE;
-    this.lastShootingStarTime = Date.now();
-    this.nextShootingStarDelay = 10000 + Math.random() * 20000;
+    this.shootingStarElapsed = 0;
+    this.nextShootingStarDelay = 5000 + Math.random() * 10000; // 初回は5秒〜15秒の間
 
     const count = Math.floor((this.W * this.H) / CONFIG.STAR_COUNT_RATIO);
     this.stars = Array.from({ length: count },
@@ -1657,10 +1657,12 @@ class GameEngine {
   _update(dt, timestamp) {
     this.stars.forEach(s => s.update(this.frame));
 
-    const now = Date.now();
-    if (now - this.lastShootingStarTime >= this.nextShootingStarDelay) {
+    // 小惑星がいない（プレイ中だが一時的に小惑星がない）時は流れ星の進行速度を2.5倍にブースト
+    const starDt = (this.asteroids.length === 0) ? dt * 2.5 : dt;
+    this.shootingStarElapsed += starDt;
+    if (this.shootingStarElapsed >= this.nextShootingStarDelay) {
       this.shootingStars.push(new ShootingStar(this.W, this.H));
-      this.lastShootingStarTime = now;
+      this.shootingStarElapsed = 0;
       this.nextShootingStarDelay = 6000 + Math.random() * 14000; // 次回以降は6秒〜20秒の間
     }
 
@@ -1748,8 +1750,9 @@ class GameEngine {
       }
 
       // 瞑想用の静かな背景波紋（元祖の脳リフレクソの波紋）の自動生成
-      // 瞑想を促すため、毎フレーム 0.003 (60fps換算で0.3%) の低い確率で穏やかに自動発生させる
-      const spawnChance = 0.003 * (dt / 16.666);
+      // 小惑星がない（未出現）時は確率1.8%に引き上げ、出現している時は0.15%に引き下げて瞑想しやすくする
+      const rippleBaseChance = (this.asteroids.length === 0) ? 0.018 : 0.0015;
+      const spawnChance = rippleBaseChance * (dt / 16.666);
       if (Math.random() < spawnChance) {
         const margin = 50 * this.scale;
         const rx = rand(margin, this.W - margin);
