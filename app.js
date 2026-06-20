@@ -2119,7 +2119,7 @@ class GameEngine {
         state = 'inhale';
         progress = this.breathCycleTime / 4000;
         scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吸って';
+        labelJp = '息を吸って';
         labelEn = 'Inhale';
       } else if (this.breathCycleTime < 11000) {
         state = 'hold';
@@ -2131,7 +2131,7 @@ class GameEngine {
         state = 'exhale';
         progress = (this.breathCycleTime - 11000) / 8000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吐いて';
+        labelJp = '息を吐いて';
         labelEn = 'Exhale';
       }
     } else if (this.breathPattern === 'box') {
@@ -2139,7 +2139,7 @@ class GameEngine {
         state = 'inhale';
         progress = this.breathCycleTime / 4000;
         scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吸って';
+        labelJp = '息を吸って';
         labelEn = 'Inhale';
       } else if (this.breathCycleTime < 8000) {
         state = 'hold'; // 満ちた状態でのキープ
@@ -2151,7 +2151,7 @@ class GameEngine {
         state = 'exhale';
         progress = (this.breathCycleTime - 8000) / 4000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吐いて';
+        labelJp = '息を吐いて';
         labelEn = 'Exhale';
       } else {
         state = 'hold-empty'; // 空の状態でのキープ
@@ -2165,13 +2165,13 @@ class GameEngine {
         state = 'inhale';
         progress = this.breathCycleTime / 5000;
         scale = 0.9 + (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吸って';
+        labelJp = '息を吸って';
         labelEn = 'Inhale';
       } else {
         state = 'exhale';
         progress = (this.breathCycleTime - 5000) / 5000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '吐いて';
+        labelJp = '息を吐いて';
         labelEn = 'Exhale';
       }
     }
