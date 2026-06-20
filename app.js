@@ -2131,7 +2131,7 @@ class GameEngine {
         state = 'exhale';
         progress = (this.breathCycleTime - 11000) / 8000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '息を吐いて';
+        labelJp = '吐いて';
         labelEn = 'Exhale';
       }
     } else if (this.breathPattern === 'box') {
@@ -2151,7 +2151,7 @@ class GameEngine {
         state = 'exhale';
         progress = (this.breathCycleTime - 8000) / 4000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '息を吐いて';
+        labelJp = '吐いて';
         labelEn = 'Exhale';
       } else {
         state = 'hold-empty'; // 空の状態でのキープ
@@ -2171,7 +2171,7 @@ class GameEngine {
         state = 'exhale';
         progress = (this.breathCycleTime - 5000) / 5000;
         scale = 1.6 - (1.6 - 0.9) * this._easeInOutQuad(progress);
-        labelJp = '息を吐いて';
+        labelJp = '吐いて';
         labelEn = 'Exhale';
       }
     }
