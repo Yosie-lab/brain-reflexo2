@@ -1542,27 +1542,22 @@ class GameEngine {
     }
 
     const updateBreathPatternUI = () => {
+      const descEl = document.getElementById('breath-pattern-desc');
       const container = document.getElementById('breath-pattern-container');
       if (container) {
         container.style.display = this.breathGuideEnabled ? '' : 'none';
       }
-
-      // 各呼吸法説明カードのハイライト切り替え
-      const patterns = ['coherent', '478', 'box'];
-      patterns.forEach(p => {
-        const card = document.getElementById(`desc-${p}`);
-        if (card) {
-          if (this.breathPattern === p) {
-            card.style.opacity = '1';
-            card.style.borderLeftColor = '#81c3d7';
-            card.style.background = 'rgba(129, 195, 215, 0.06)';
-          } else {
-            card.style.opacity = '0.45';
-            card.style.borderLeftColor = 'rgba(255, 255, 255, 0.1)';
-            card.style.background = 'rgba(255, 255, 255, 0.02)';
-          }
+      if (descEl) {
+        let desc = '';
+        if (this.breathPattern === 'coherent') {
+          desc = '<strong>【コヒーレント呼吸】吸う5秒 / 吐く5秒</strong><br>心拍と呼吸の周期を同調させ、自律神経のバランスを整えます。最も深いリラクゼーションをもたらす基本の呼吸法です。';
+        } else if (this.breathPattern === '478') {
+          desc = '<strong>【4-7-8呼吸法】吸う4秒 / 止める7秒 / 吐く8秒</strong><br>神経系を強力に鎮静させます。余計な思考を遮断し、強い不安の解消や安眠・睡眠導入に極めて効果的です。';
+        } else if (this.breathPattern === 'box') {
+          desc = '<strong>【ボックス呼吸】吸う4秒 / 止める4秒 / 吐く4秒 / 止める4秒</strong><br>緊張をほぐしながらも、意識をクリアに保ちます。自律神経をリセットし、高い集中力を引き出します。';
         }
-      });
+        descEl.innerHTML = desc;
+      }
     };
 
     const chkBreath = document.getElementById('chk-breath');
