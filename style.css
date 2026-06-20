@@ -714,6 +714,19 @@ body.game-active .app-header {
   text-shadow: 0 0 15px rgba(129, 195, 215, 0.3);
 }
 
+.logo-ver {
+  color: #f0d9b0; /* 暖かみのある月のようなゴールドで強調 */
+  font-weight: 900;
+  font-size: 1.15em;
+  margin-left: 4px;
+  font-style: italic;
+  display: inline-block;
+  text-shadow: 
+    0 0 8px rgba(240, 217, 176, 0.8),
+    0 0 18px rgba(240, 217, 176, 0.4);
+}
+
+
 .logo-en {
   font-size: 10px;
   font-weight: 400;
