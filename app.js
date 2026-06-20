@@ -1730,6 +1730,7 @@ class GameEngine {
     this.cursorMoveTimeout = setTimeout(() => {
       this.cursor.classList.remove('moving');
       this.cursor.classList.add('stopped');
+      this.cursor.style.opacity = '0'; // 動きが止まったらカーソル（光る点）を非表示にする
     }, 120); // 120ms間動きが止まれば「停止」と判定
   }
 
