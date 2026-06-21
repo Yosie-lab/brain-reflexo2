@@ -402,7 +402,7 @@ class SoundEngine {
       const now = ctx.currentTime;
 
       const dryGain = ctx.createGain();
-      dryGain.gain.setValueAtTime(0.20, now); // 音量を0.05から0.20へ底上げ
+      dryGain.gain.setValueAtTime(0.18, now); // 直接音（Dry）のみ10%下げて0.18に調整
       dryGain.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.TONE_DURATION);
       dryGain.connect(ctx.destination);
 
@@ -418,7 +418,7 @@ class SoundEngine {
 
       const env = ctx.createGain();
       env.gain.setValueAtTime(0.001, now);
-      env.gain.exponentialRampToValueAtTime(0.95, now + 0.01); // エンベロープ最大ゲインを0.60から0.95へ底上げ
+      env.gain.exponentialRampToValueAtTime(0.95, now + 0.01); // エンベロープ最大ゲインを元の0.95に復元
       env.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.TONE_DURATION);
 
       osc.connect(env);
