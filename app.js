@@ -84,6 +84,7 @@ class SoundEngine {
     this.reverbReady = false;
     this.carbonatedBuffer = null;
     this.keepAliveNode = null;
+    this.ambientNodes = null;
   }
 
   /**
@@ -429,6 +430,112 @@ class SoundEngine {
       ctx.resume().then(_play).catch(e => console.warn('resume error:', e));
     } else {
       _play();
+    }
+  }
+
+  /** ソルフェジオ周波数（528Hz / 396Hz）の超微弱環境音（BGMドローン）を再生開始 */
+  startAmbient() {
+    if (!this.ctx) return;
+    this.stopAmbient(); // 既に再生中なら止める
+
+    const ctx = this.ctx;
+    const now = ctx.currentTime;
+
+    // 528Hz (DNA修復・奇跡) と 396Hz (解放・トラウマ解消) のオシレーター
+    const osc528 = ctx.createOscillator();
+    osc528.type = 'sine';
+    osc528.frequency.setValueAtTime(528, now);
+
+    const osc396 = ctx.createOscillator();
+    osc396.type = 'sine';
+    osc396.frequency.setValueAtTime(396, now);
+
+    // ピッチを極めてゆっくり、僅かに揺らすためのLFO（うねり・ビブラート効果）
+    const lfoPitch = ctx.createOscillator();
+    lfoPitch.type = 'sine';
+    lfoPitch.frequency.setValueAtTime(0.06, now); // 約16秒で1サイクル
+
+    const lfoPitchGain = ctx.createGain();
+    lfoPitchGain.gain.setValueAtTime(0.6, now); // 揺らぎ幅 0.6Hz
+
+    lfoPitch.connect(lfoPitchGain);
+    lfoPitchGain.connect(osc528.frequency);
+    lfoPitchGain.connect(osc396.frequency);
+
+    // 音量は耳を澄ませば聞こえる程度の極めて微弱なものに設定（耳疲れ防止）
+    const ambientGain = ctx.createGain();
+    ambientGain.gain.setValueAtTime(0.0001, now);
+    ambientGain.gain.linearRampToValueAtTime(0.012, now + 3.0); // 3秒かけて滑らかにフェードイン
+
+    // 音量もわずかに揺らして、さらにオーガニックな響きにするLFO
+    const lfoVol = ctx.createOscillator();
+    lfoVol.type = 'sine';
+    lfoVol.frequency.setValueAtTime(0.04, now); // 約25秒で1サイクル
+
+    const lfoVolGain = ctx.createGain();
+    lfoVolGain.gain.setValueAtTime(0.003, now);
+
+    lfoVol.connect(lfoVolGain);
+    lfoVolGain.connect(ambientGain.gain);
+
+    // 接続
+    osc528.connect(ambientGain);
+    osc396.connect(ambientGain);
+
+    // リバーブが有効な場合、ウェット（響き）も加えて空間的な広がりに溶け込ませる
+    if (this.reverbNode) {
+      const wetGain = ctx.createGain();
+      wetGain.gain.setValueAtTime(0.03, now);
+      ambientGain.connect(wetGain);
+      wetGain.connect(this.reverbNode);
+    }
+
+    ambientGain.connect(ctx.destination);
+
+    osc528.start(now);
+    osc396.start(now);
+    lfoPitch.start(now);
+    lfoVol.start(now);
+
+    this.ambientNodes = {
+      osc528,
+      osc396,
+      lfoPitch,
+      lfoVol,
+      gain: ambientGain
+    };
+  }
+
+  /** 環境音をスムーズにフェードアウトさせて停止 */
+  stopAmbient() {
+    if (!this.ambientNodes) return;
+    const ctx = this.ctx;
+    const now = ctx ? ctx.currentTime : 0;
+    const nodes = this.ambientNodes;
+    this.ambientNodes = null;
+
+    if (nodes.gain && ctx) {
+      try {
+        nodes.gain.gain.cancelScheduledValues(now);
+        nodes.gain.gain.setValueAtTime(nodes.gain.gain.value, now);
+        nodes.gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0); // 2秒かけてゆっくりフェードアウト
+      } catch (e) {}
+
+      setTimeout(() => {
+        try {
+          nodes.osc528.stop();
+          nodes.osc396.stop();
+          nodes.lfoPitch.stop();
+          nodes.lfoVol.stop();
+        } catch (e) {}
+      }, 2100);
+    } else {
+      try {
+        nodes.osc528.stop();
+        nodes.osc396.stop();
+        nodes.lfoPitch.stop();
+        nodes.lfoVol.stop();
+      } catch (e) {}
     }
   }
 }
@@ -1736,6 +1843,7 @@ class GameEngine {
 
   _startGame(isResume = false) {
     this.sound.init();
+    this.sound.startAmbient();
 
     const startScreen = document.getElementById('start-screen');
     startScreen.classList.add('fade-out');
@@ -1829,6 +1937,7 @@ class GameEngine {
     this.stage = 1;
     this._initGame(false);
     document.body.classList.remove('game-active');
+    this.sound.stopAmbient();
   }
 
   _getElapsedTime(timestamp) {
@@ -2296,6 +2405,7 @@ class GameEngine {
     this.resultTime.textContent = `${m}:${String(s).padStart(2, '0')}`;
     this.controlPanel.classList.add('hidden');
     document.body.classList.remove('game-active');
+    this.sound.stopAmbient();
 
     const retryBtn = document.getElementById('retry-btn');
     this.stageCleared = false;
