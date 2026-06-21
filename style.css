@@ -311,14 +311,16 @@ body.game-active #gravity-cursor {
   font-weight: 300;
   font-size: 14px;
   letter-spacing: 0.2em;
-  color: var(--planet-warm);
-  background: var(--btn-bg);
-  border: 1px solid var(--btn-border);
+  color: var(--btn-color, var(--planet-warm));
+  background: var(--btn-bg-val, var(--btn-bg));
+  border: 1px solid var(--btn-border-val, var(--btn-border));
   border-radius: 40px;
   padding: 12px 40px;
   cursor: pointer;
   transition:
     background 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
     box-shadow 0.3s ease,
     transform 0.2s ease;
   outline: none;
@@ -326,15 +328,41 @@ body.game-active #gravity-cursor {
 }
 
 .action-btn:hover, .action-btn:focus {
-  background: var(--btn-hover);
+  background: var(--btn-hover-val, var(--btn-hover));
+  border-color: var(--btn-color, var(--planet-warm));
   box-shadow:
-    0 0 20px var(--planet-glow2),
+    0 0 20px var(--btn-glow-val, var(--planet-glow2)),
     0 0 40px rgba(240, 200, 140, 0.08);
   transform: translateY(-1px);
 }
 
 .action-btn:active {
   transform: translateY(0);
+}
+
+/* 個別ボタンのパステル調デザイン調整 */
+#start-btn {
+  --btn-color: #a7f3d0; /* パステルミントグリーン */
+  --btn-bg-val: rgba(167, 243, 208, 0.08);
+  --btn-border-val: rgba(167, 243, 208, 0.35);
+  --btn-hover-val: rgba(167, 243, 208, 0.22);
+  --btn-glow-val: rgba(167, 243, 208, 0.25);
+}
+
+#resume-save-btn {
+  --btn-color: #bae6fd; /* パステルライトブルー */
+  --btn-bg-val: rgba(186, 230, 253, 0.08);
+  --btn-border-val: rgba(186, 230, 253, 0.35);
+  --btn-hover-val: rgba(186, 230, 253, 0.22);
+  --btn-glow-val: rgba(186, 230, 253, 0.25);
+}
+
+#retry-btn {
+  --btn-color: #fbcfe8; /* パステルピンク */
+  --btn-bg-val: rgba(251, 207, 232, 0.08);
+  --btn-border-val: rgba(251, 207, 232, 0.35);
+  --btn-hover-val: rgba(251, 207, 232, 0.22);
+  --btn-glow-val: rgba(251, 207, 232, 0.25);
 }
 
 /* ---------- リザルト画面 ---------- */
