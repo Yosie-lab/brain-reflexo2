@@ -37,7 +37,7 @@ const CONFIG = {
   ABSORB_RING_MAX_RADIUS_MULT: 3.0,
 
   // 音
-  REVERB_DURATION: 2.5,               // s（リバーブの長さ）
+  REVERB_DURATION: 4.0,               // s（リバーブの長さ）
   TONE_FREQ: 720,                     // Hz（高めの柔らかい周波数）
   TONE_DURATION: 0.18,                // s（音の発音時間）
 };
@@ -498,13 +498,13 @@ class SoundEngine {
     // 【重要】直接音（Dry）は極限まで抑え（ほぼゼロ）、リバーブ（Wet）を強力に響かせる
     // 音が「耳元で鳴っている」不快感を完全に消し、深い空間（宇宙）から包み込まれるアンビエントにします。
     const dryGain = ctx.createGain();
-    dryGain.gain.setValueAtTime(0.02, now); // 直接音はわずか2%のみ
+    dryGain.gain.setValueAtTime(0.005, now); // 直接音はわずか0.5%のみ
     ambientGain.connect(dryGain);
     dryGain.connect(ctx.destination);
 
     if (this.reverbNode) {
       const wetGain = ctx.createGain();
-      wetGain.gain.setValueAtTime(4.2, now); // リバーブへのセンドを4.2倍に引き上げ、残響音を最大化
+      wetGain.gain.setValueAtTime(7.5, now); // リバーブへのセンドを7.5倍に引き上げ、残響音を最大化
       ambientGain.connect(wetGain);
       wetGain.connect(this.reverbNode);
     } else {
