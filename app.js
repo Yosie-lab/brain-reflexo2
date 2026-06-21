@@ -364,10 +364,10 @@ class SoundEngine {
       const outputGain = this.ctx.createGain();
       // 最初は小さめ
       outputGain.gain.setValueAtTime(0.01, now);
-      // 0.8秒かけて爽快に立ち上げる（脳リフレクソの爽快感を活かすためピークはやや抑えめの1.15）
-      outputGain.gain.linearRampToValueAtTime(1.15, now + 0.8);
+      // 0.8秒かけて爽快に立ち上げる（ピークを2.3に引き上げ）
+      outputGain.gain.linearRampToValueAtTime(2.3, now + 0.8);
       // その後、ゆっくり消えていくフェードアウト
-      outputGain.gain.setValueAtTime(1.15, now + 1.8);
+      outputGain.gain.setValueAtTime(2.3, now + 1.8);
       outputGain.gain.exponentialRampToValueAtTime(0.0001, now + durationSeconds);
 
       filterNode.connect(outputGain);
