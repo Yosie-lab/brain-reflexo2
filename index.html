@@ -172,7 +172,19 @@
           </div>
         </div>
 
-        <div class="setting-item" style="border-top: 1px solid var(--ui-border); padding-top: 16px; margin-top: 4px;">
+        <div class="setting-item toggle-item" style="border-top: 1px solid var(--ui-border); padding-top: 16px; margin-top: 4px;">
+          <span class="setting-label">
+            <span class="lang-ja">ソルフェジオ環境音</span>
+            <span class="lang-divider"> / </span>
+            <span class="lang-en">Solfeggio Sound</span>
+          </span>
+          <label class="switch">
+            <input type="checkbox" id="chk-solfeggio" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item" id="solfeggio-vol-container" style="padding-top: 8px; transition: opacity 0.3s ease;">
           <div class="setting-label" style="display: flex; justify-content: space-between; align-items: center;">
             <span>
               <span class="lang-ja">ソルフェジオ音量</span>

@@ -86,6 +86,7 @@ class SoundEngine {
     this.keepAliveNode = null;
     this.ambientNodes = null;
     this.ambientVolume = 0.5; // 初期音量は50%
+    this.ambientEnabled = true; // 環境音のオン・オフフラグ
   }
 
   /**
@@ -436,7 +437,7 @@ class SoundEngine {
 
   /** ソルフェジオ周波数（528Hz / 396Hz）の超微弱環境音（BGMドローン）を再生開始 */
   startAmbient() {
-    if (!this.ctx) return;
+    if (!this.ctx || !this.ambientEnabled) return; // 有効化されていない場合は再生しない
     this.stopAmbient(); // 既に再生中なら止める
 
     const ctx = this.ctx;
@@ -451,58 +452,76 @@ class SoundEngine {
     osc396.type = 'sine';
     osc396.frequency.setValueAtTime(396, now);
 
-    // ピッチを極めてゆっくり、僅かに揺らすためのLFO（うねり・ビブラート効果）
-    const lfoPitch = ctx.createOscillator();
-    lfoPitch.type = 'sine';
-    lfoPitch.frequency.setValueAtTime(0.06, now); // 約16秒で1サイクル
+    // 音色の角を丸めてより心地よい響きにするためのローパスフィルター
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(600, now); // 600Hz以上を穏やかにカットして柔らかい音に
+    filter.Q.setValueAtTime(0.7, now);
 
-    const lfoPitchGain = ctx.createGain();
-    lfoPitchGain.gain.setValueAtTime(0.6, now); // 揺らぎ幅 0.6Hz
+    // ピッチを極めてゆっくり個別に揺らすLFO（デチューンとコーラス的な広がりを生む）
+    const lfoPitch528 = ctx.createOscillator();
+    lfoPitch528.type = 'sine';
+    lfoPitch528.frequency.setValueAtTime(0.045, now); // 約22秒周期
+    const lfoGain528 = ctx.createGain();
+    lfoGain528.gain.setValueAtTime(0.4, now); // 揺らぎ幅0.4Hz
+    lfoPitch528.connect(lfoGain528);
+    lfoGain528.connect(osc528.frequency);
 
-    lfoPitch.connect(lfoPitchGain);
-    lfoPitchGain.connect(osc528.frequency);
-    lfoPitchGain.connect(osc396.frequency);
+    const lfoPitch396 = ctx.createOscillator();
+    lfoPitch396.type = 'sine';
+    lfoPitch396.frequency.setValueAtTime(0.035, now); // 約28秒周期
+    const lfoGain396 = ctx.createGain();
+    lfoGain396.gain.setValueAtTime(0.3, now); // 揺らぎ幅0.3Hz
+    lfoPitch396.connect(lfoGain396);
+    lfoGain396.connect(osc396.frequency);
 
-    // 音量は耳を澄ませば聞こえる程度の極めて微弱なものに設定（耳疲れ防止）
+    // 音量は耳を澄ませばかすかに聴こえるレベルに微小化 (最大基準値を0.012に引き下げ)
     const ambientGain = ctx.createGain();
     ambientGain.gain.setValueAtTime(0.0001, now);
-    const targetVol = this.ambientVolume * 0.024; // 設定音量に合わせた最大値
-    ambientGain.gain.linearRampToValueAtTime(targetVol, now + 3.0); // 3秒かけて滑らかにフェードイン
+    const targetVol = this.ambientVolume * 0.012;
+    ambientGain.gain.linearRampToValueAtTime(targetVol, now + 4.0); // 4秒かけて非常にゆっくりフェードイン
 
-    // 音量もわずかに揺らして、さらにオーガニックな響きにするLFO
+    // 音量もうねるようにLFOで揺らす（呼吸のような自然なサイクル）
     const lfoVol = ctx.createOscillator();
     lfoVol.type = 'sine';
-    lfoVol.frequency.setValueAtTime(0.04, now); // 約25秒で1サイクル
-
+    lfoVol.frequency.setValueAtTime(0.03, now); // 約33秒周期
     const lfoVolGain = ctx.createGain();
-    lfoVolGain.gain.setValueAtTime(0.003, now);
-
+    lfoVolGain.gain.setValueAtTime(targetVol * 0.22, now); // 音量の22%の範囲でうねらせる
     lfoVol.connect(lfoVolGain);
     lfoVolGain.connect(ambientGain.gain);
 
-    // 接続
-    osc528.connect(ambientGain);
-    osc396.connect(ambientGain);
+    // 接続 (オシレーター -> フィルター -> メインアッテネーター)
+    osc528.connect(filter);
+    osc396.connect(filter);
+    filter.connect(ambientGain);
 
-    // リバーブが有効な場合、ウェット（響き）も加えて空間的な広がりに溶け込ませる
+    // 【重要】直接音（Dry）は極小にし、リバーブ（Wet）をメインに響かせる
+    // 音が「耳元で鳴っている」不快感を完全に消し、深い空間（宇宙）から包み込まれるアンビエントにします。
+    const dryGain = ctx.createGain();
+    dryGain.gain.setValueAtTime(0.15, now); // 直接音は15%のみ
+    ambientGain.connect(dryGain);
+    dryGain.connect(ctx.destination);
+
     if (this.reverbNode) {
       const wetGain = ctx.createGain();
-      wetGain.gain.setValueAtTime(0.03, now);
+      wetGain.gain.setValueAtTime(2.6, now); // リバーブへは2.6倍でたっぷり流し込む
       ambientGain.connect(wetGain);
       wetGain.connect(this.reverbNode);
+    } else {
+      ambientGain.connect(ctx.destination);
     }
-
-    ambientGain.connect(ctx.destination);
 
     osc528.start(now);
     osc396.start(now);
-    lfoPitch.start(now);
+    lfoPitch528.start(now);
+    lfoPitch396.start(now);
     lfoVol.start(now);
 
     this.ambientNodes = {
       osc528,
       osc396,
-      lfoPitch,
+      lfoPitch528,
+      lfoPitch396,
       lfoVol,
       gain: ambientGain
     };
@@ -520,22 +539,24 @@ class SoundEngine {
       try {
         nodes.gain.gain.cancelScheduledValues(now);
         nodes.gain.gain.setValueAtTime(nodes.gain.gain.value, now);
-        nodes.gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0); // 2秒かけてゆっくりフェードアウト
+        nodes.gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.5); // 2.5秒かけてゆっくりフェードアウト
       } catch (e) {}
 
       setTimeout(() => {
         try {
           nodes.osc528.stop();
           nodes.osc396.stop();
-          nodes.lfoPitch.stop();
+          nodes.lfoPitch528.stop();
+          nodes.lfoPitch396.stop();
           nodes.lfoVol.stop();
         } catch (e) {}
-      }, 2100);
+      }, 2600);
     } else {
       try {
         nodes.osc528.stop();
         nodes.osc396.stop();
-        nodes.lfoPitch.stop();
+        nodes.lfoPitch528.stop();
+        nodes.lfoPitch396.stop();
         nodes.lfoVol.stop();
       } catch (e) {}
     }
@@ -546,13 +567,23 @@ class SoundEngine {
     this.ambientVolume = vol; // 0.0 ~ 1.0
     if (this.ambientNodes && this.ambientNodes.gain && this.ctx) {
       const now = this.ctx.currentTime;
-      const targetVol = this.ambientVolume * 0.024;
+      const targetVol = this.ambientVolume * 0.012; // スケールを 0.012 に統一
       try {
         this.ambientNodes.gain.gain.cancelScheduledValues(now);
         this.ambientNodes.gain.gain.setValueAtTime(this.ambientNodes.gain.gain.value, now);
-        // 急激な変化でのポップノイズを防ぐため、0.1秒かけて滑らかに変更
-        this.ambientNodes.gain.gain.linearRampToValueAtTime(targetVol, now + 0.1);
+        // 急激な変化でのポップノイズを防ぐため、0.15秒かけて滑らかに変更
+        this.ambientNodes.gain.gain.linearRampToValueAtTime(targetVol, now + 0.15);
       } catch (e) {}
+    }
+  }
+
+  /** 環境音のオン・オフを切り替える（外部UI制御用） */
+  setAmbientEnabled(enabled, isGamePlaying = false) {
+    this.ambientEnabled = enabled;
+    if (!enabled) {
+      this.stopAmbient();
+    } else if (isGamePlaying) {
+      this.startAmbient();
     }
   }
 }
@@ -1818,6 +1849,36 @@ class GameEngine {
     if (activeBtn) {
       patternButtons.forEach(b => b.classList.remove('active'));
       activeBtn.classList.add('active');
+    }
+
+    // ソルフェジオ環境音オン・オフの制御
+    const chkSolfeggio = document.getElementById('chk-solfeggio');
+    const solfeggioVolContainer = document.getElementById('solfeggio-vol-container');
+    if (chkSolfeggio) {
+      const savedEnabled = localStorage.getItem('nebula_garden_solfeggio_enabled') !== 'false';
+      chkSolfeggio.checked = savedEnabled;
+      this.sound.ambientEnabled = savedEnabled;
+      
+      if (solfeggioVolContainer) {
+        solfeggioVolContainer.style.opacity = savedEnabled ? '1.0' : '0.4';
+        solfeggioVolContainer.style.pointerEvents = savedEnabled ? 'auto' : 'none';
+      }
+
+      chkSolfeggio.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        localStorage.setItem('nebula_garden_solfeggio_enabled', enabled);
+        
+        if (solfeggioVolContainer) {
+          solfeggioVolContainer.style.opacity = enabled ? '1.0' : '0.4';
+          solfeggioVolContainer.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+
+        if (this.sound) {
+          this.sound.unlock();
+          const isPlaying = this.gameStarted && !this.paused;
+          this.sound.setAmbientEnabled(enabled, isPlaying);
+        }
+      });
     }
 
     // ソルフェジオ音量スライダーの制御
