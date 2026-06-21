@@ -495,16 +495,16 @@ class SoundEngine {
     osc396.connect(filter);
     filter.connect(ambientGain);
 
-    // 【重要】直接音（Dry）は極小にし、リバーブ（Wet）をメインに響かせる
+    // 【重要】直接音（Dry）は極限まで抑え（ほぼゼロ）、リバーブ（Wet）を強力に響かせる
     // 音が「耳元で鳴っている」不快感を完全に消し、深い空間（宇宙）から包み込まれるアンビエントにします。
     const dryGain = ctx.createGain();
-    dryGain.gain.setValueAtTime(0.15, now); // 直接音は15%のみ
+    dryGain.gain.setValueAtTime(0.02, now); // 直接音はわずか2%のみ
     ambientGain.connect(dryGain);
     dryGain.connect(ctx.destination);
 
     if (this.reverbNode) {
       const wetGain = ctx.createGain();
-      wetGain.gain.setValueAtTime(2.6, now); // リバーブへは2.6倍でたっぷり流し込む
+      wetGain.gain.setValueAtTime(4.2, now); // リバーブへのセンドを4.2倍に引き上げ、残響音を最大化
       ambientGain.connect(wetGain);
       wetGain.connect(this.reverbNode);
     } else {
