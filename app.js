@@ -85,7 +85,7 @@ class SoundEngine {
     this.carbonatedBuffer = null;
     this.keepAliveNode = null;
     this.ambientNodes = null;
-    this.ambientVolume = 0.5; // 初期音量は50%
+    this.ambientVolume = 0.03; // 初期音量は3%
     this.ambientEnabled = true; // 環境音のオン・オフフラグ
   }
 
@@ -1886,7 +1886,7 @@ class GameEngine {
     const labelSolfeggioVol = document.getElementById('solfeggio-vol-value');
     if (rangeSolfeggioVol && labelSolfeggioVol) {
       const savedVol = localStorage.getItem('nebula_garden_solfeggio_vol');
-      const initialVol = savedVol !== null ? parseInt(savedVol, 10) : 50;
+      const initialVol = savedVol !== null ? parseInt(savedVol, 10) : 3;
       
       rangeSolfeggioVol.value = initialVol;
       labelSolfeggioVol.textContent = `${initialVol}%`;

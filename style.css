@@ -455,12 +455,12 @@ body.game-active #gravity-cursor {
   z-index: 100;
   display: flex;
   gap: 8px;
-  opacity: 1.0; /* 完全に不透明にし、常にはっきりと表示 */
+  opacity: 0.45; /* プレイ中は薄く表示してゲームの邪魔をせず、ホバー時にくっきりさせる */
   transition: opacity 0.4s ease;
 }
 
 .control-panel:hover {
-  opacity: 1.0;
+  opacity: 0.95;
 }
 
 .control-panel.hidden {
