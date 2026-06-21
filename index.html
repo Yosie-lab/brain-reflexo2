@@ -171,6 +171,22 @@
             <!-- JavaScriptで切り替わる説明 -->
           </div>
         </div>
+
+        <div class="setting-item" style="border-top: 1px solid var(--ui-border); padding-top: 16px; margin-top: 4px;">
+          <div class="setting-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>
+              <span class="lang-ja">ソルフェジオ音量</span>
+              <span class="lang-divider"> / </span>
+              <span class="lang-en">Solfeggio Volume</span>
+            </span>
+            <span id="solfeggio-vol-value" style="font-family: var(--font-serif); font-size: 11px; color: var(--planet-warm);">50%</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px;">
+            <span style="font-size: 12px; opacity: 0.5;">🔈</span>
+            <input type="range" id="range-solfeggio-vol" min="0" max="100" value="50" style="flex: 1; accent-color: var(--planet-warm); cursor: pointer; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; appearance: none; -webkit-appearance: none;">
+            <span style="font-size: 12px; opacity: 0.5;">🔊</span>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -455,12 +455,12 @@ body.game-active #gravity-cursor {
   z-index: 100;
   display: flex;
   gap: 8px;
-  opacity: 0.35; /* プレイ中は極めて薄く表示 */
+  opacity: 1.0; /* 完全に不透明にし、常にはっきりと表示 */
   transition: opacity 0.4s ease;
 }
 
 .control-panel:hover {
-  opacity: 0.95;
+  opacity: 1.0;
 }
 
 .control-panel.hidden {
@@ -469,27 +469,31 @@ body.game-active #gravity-cursor {
 
 .control-btn {
   font-family: var(--font-serif);
-  font-weight: 300;
-  font-size: 10px;
+  font-weight: 400;
+  font-size: 11px; /* 視認性を上げるため少し拡大 */
   letter-spacing: 0.08em;
-  color: var(--ui-text-soft);
-  background: rgba(6, 11, 24, 0.28); /* 背景を大幅に透過 */
-  border: 1px solid rgba(212, 201, 176, 0.05);
-  border-radius: 16px;
-  padding: 6px 14px;
+  color: #ffffff; /* 文字を真っ白にして最高のコントラストを確保 */
+  background: rgba(240, 200, 140, 0.18); /* 背景をゴールドの光のベール（透過度0.18）で満たして目立たせる */
+  border: 1.5px solid rgba(240, 200, 140, 0.85); /* 枠線を1.5pxに太くし、不透明度を85%に高めて輪郭を強調 */
+  border-radius: 18px;
+  padding: 8px 18px; /* ボタンの大きさをさらに拡大し、押しやすさと存在感を両立 */
   cursor: pointer !important;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 
+    0 4px 25px rgba(0,0,0,0.45),
+    0 0 10px rgba(240, 200, 140, 0.25); /* 最初からまとわせるゴールドの光彩（グロー）を強化 */
   transition: all 0.4s ease;
   outline: none;
 }
 
 .control-btn:hover {
-  color: var(--planet-warm);
-  border-color: var(--btn-border);
+  color: #fff;
+  border-color: rgba(240, 200, 140, 0.95);
   background: var(--btn-hover);
-  box-shadow: 0 0 12px var(--planet-glow);
+  box-shadow: 
+    0 0 15px rgba(240, 200, 140, 0.35),
+    0 0 30px rgba(240, 200, 140, 0.1);
 }
 
 /* ---------- スマートフォン向け最適化（画面幅600px以下） ---------- */
@@ -1065,6 +1069,41 @@ body.lang-mode-en .lang-divider {
 body.lang-mode-en .btn-option .en-sub {
   font-size: 11px;
   opacity: 1;
+}
+
+/* ---------- スライダーカスタムスタイル ---------- */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--planet-warm);
+  border: 1px solid rgba(6, 11, 24, 0.6);
+  box-shadow: 0 0 6px var(--planet-glow);
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #fff;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--planet-warm);
+  border: 1px solid rgba(6, 11, 24, 0.6);
+  box-shadow: 0 0 6px var(--planet-glow);
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #fff;
 }
 
 

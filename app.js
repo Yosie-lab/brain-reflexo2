@@ -85,6 +85,7 @@ class SoundEngine {
     this.carbonatedBuffer = null;
     this.keepAliveNode = null;
     this.ambientNodes = null;
+    this.ambientVolume = 0.5; // 初期音量は50%
   }
 
   /**
@@ -465,7 +466,8 @@ class SoundEngine {
     // 音量は耳を澄ませば聞こえる程度の極めて微弱なものに設定（耳疲れ防止）
     const ambientGain = ctx.createGain();
     ambientGain.gain.setValueAtTime(0.0001, now);
-    ambientGain.gain.linearRampToValueAtTime(0.012, now + 3.0); // 3秒かけて滑らかにフェードイン
+    const targetVol = this.ambientVolume * 0.024; // 設定音量に合わせた最大値
+    ambientGain.gain.linearRampToValueAtTime(targetVol, now + 3.0); // 3秒かけて滑らかにフェードイン
 
     // 音量もわずかに揺らして、さらにオーガニックな響きにするLFO
     const lfoVol = ctx.createOscillator();
@@ -535,6 +537,21 @@ class SoundEngine {
         nodes.osc396.stop();
         nodes.lfoPitch.stop();
         nodes.lfoVol.stop();
+      } catch (e) {}
+    }
+  }
+
+  /** 動的に音量を変更（ゲームプレイ中のリアルタイム反映用） */
+  setAmbientVolume(vol) {
+    this.ambientVolume = vol; // 0.0 ~ 1.0
+    if (this.ambientNodes && this.ambientNodes.gain && this.ctx) {
+      const now = this.ctx.currentTime;
+      const targetVol = this.ambientVolume * 0.024;
+      try {
+        this.ambientNodes.gain.gain.cancelScheduledValues(now);
+        this.ambientNodes.gain.gain.setValueAtTime(this.ambientNodes.gain.gain.value, now);
+        // 急激な変化でのポップノイズを防ぐため、0.1秒かけて滑らかに変更
+        this.ambientNodes.gain.gain.linearRampToValueAtTime(targetVol, now + 0.1);
       } catch (e) {}
     }
   }
@@ -1801,6 +1818,31 @@ class GameEngine {
     if (activeBtn) {
       patternButtons.forEach(b => b.classList.remove('active'));
       activeBtn.classList.add('active');
+    }
+
+    // ソルフェジオ音量スライダーの制御
+    const rangeSolfeggioVol = document.getElementById('range-solfeggio-vol');
+    const labelSolfeggioVol = document.getElementById('solfeggio-vol-value');
+    if (rangeSolfeggioVol && labelSolfeggioVol) {
+      const savedVol = localStorage.getItem('nebula_garden_solfeggio_vol');
+      const initialVol = savedVol !== null ? parseInt(savedVol, 10) : 50;
+      
+      rangeSolfeggioVol.value = initialVol;
+      labelSolfeggioVol.textContent = `${initialVol}%`;
+      this.sound.ambientVolume = initialVol / 100;
+
+      const handleVolChange = (e) => {
+        const val = parseInt(e.target.value, 10);
+        labelSolfeggioVol.textContent = `${val}%`;
+        localStorage.setItem('nebula_garden_solfeggio_vol', val);
+        if (this.sound) {
+          this.sound.unlock();
+          this.sound.setAmbientVolume(val / 100);
+        }
+      };
+
+      rangeSolfeggioVol.addEventListener('input', handleVolChange);
+      rangeSolfeggioVol.addEventListener('change', handleVolChange);
     }
   }
 
