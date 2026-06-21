@@ -402,7 +402,7 @@ class SoundEngine {
       const now = ctx.currentTime;
 
       const dryGain = ctx.createGain();
-      dryGain.gain.setValueAtTime(0.18, now); // 直接音（Dry）のみ10%下げて0.18に調整
+      dryGain.gain.setValueAtTime(0.17, now); // 直接音（Dry）をさらに5%下げて0.17（合計15%減）に調整
       dryGain.gain.exponentialRampToValueAtTime(0.001, now + CONFIG.TONE_DURATION);
       dryGain.connect(ctx.destination);
 
